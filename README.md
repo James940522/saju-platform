@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Saju Platform
 
-## Getting Started
+한국 사주/운세 기반 모바일 중심 서비스의 프론트엔드 repository다.
 
-First, run the development server:
+서비스명은 아직 확정되지 않았으므로 `saju-platform`은 개발상 식별자로만 사용한다. 제품 방향과 작업 규칙은 아래 문서를 먼저 확인한다.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- `AGENTS.md`
+- `docs/product_context.md`
+- `docs/architecture.md`
+
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- App Router
+- Tailwind CSS 4
+- pnpm
+
+## Project Structure
+
+```text
+src/
+  app/
+  views/
+  widgets/
+  features/
+  entities/
+  shared/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`src/app`은 Next.js App Router entry다. 실제 route 단위 화면 구현은 이후 `src/views`를 중심으로 구성한다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev
+pnpm lint
+pnpm build
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+현재 단계에서는 실제 Backend, 인증, 결제, AI Provider, Database 연동을 구현하지 않는다.
