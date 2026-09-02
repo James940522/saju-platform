@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --app-max-width: 430px;
+  --app-outer: #e8e0d2;
+  --background: #fbf7ee;
+  --foreground: #29231c;
+  --surface: #fffdf8;
+  --paper: #f6eddc;
+  --paper-border: #ead9bd;
+  --primary: #8a3d2b;
+  --primary-soft: #f1ded3;
+  --primary-foreground: #fff7ed;
+  --muted: #7f7163;
+  --border: #eadfce;
+  --shadow-soft: 0 18px 45px rgba(76, 51, 27, 0.08);
 }
 
 @theme inline {
+  --color-app-outer: var(--app-outer);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-paper: var(--paper);
+  --color-paper-border: var(--paper-border);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --shadow-soft: var(--shadow-soft);
+  --font-sans: var(--font-sans-stack);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--app-outer);
 }
 
 body {
+  min-height: 100dvh;
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans-stack);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --font-sans-stack: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR",
+    "Malgun Gothic", system-ui, sans-serif;
 }

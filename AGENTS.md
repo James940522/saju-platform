@@ -81,7 +81,7 @@ Next.js의 `pages` directory와 혼동하지 않기 위해 FSD Pages Layer 성�
 Layer 책임은 다음과 같다.
 
 - `app`: Next.js routing entry, route segment, layout, page
-- `application`: provider, global style, global configuration, application initialization
+- `application`: App Shell, provider, global style, global configuration, application initialization
 - `domains`: 하나의 route를 구성하는 페이지 특화 코드 집합
 - `widgets`: 여러 feature/entity를 조합한 큰 독립 UI block
 - `features`: 사용자의 행동과 use case
@@ -275,11 +275,318 @@ Slice 내부에서는 필요한 경우 다음 segment 이름을 우선 사용한
 - Tailwind CSS를 기본 styling 방식으로 사용한다.
 - Mobile First로 구현한다.
 - 주요 사용 환경은 모바일이다.
+- 기본 UI는 Mobile App Shell 형태를 유지하며, 큰 화면에서도 앱 콘텐츠가 무한정 넓어지지 않도록 한다.
+- 서비스 전체 App width/container 정책은 개별 page가 아니라 application/global layout에서 관리한다.
 - 모바일 디자인을 먼저 정확하게 구현하고 이후 tablet/desktop으로 확장한다.
 - 동일한 spacing, typography, color, radius가 반복되면 design token으로 관리하는 것을 고려한다.
 - 디자인 reference가 있다면 Visual Source of Truth로 취급한다.
 - 디자인 reference에 없는 gradient, shadow, animation, glassmorphism, decorative icon, decorative background를 임의로 추가하지 않는다.
 - inline style은 특별한 이유가 없는 한 사용하지 않는다.
+
+## Mobile Layout Rules
+
+이 서비스는 Mobile First가 아니라 사실상 Mobile App First에 가깝게 설계한다.
+
+주요 사용자 경험은 모바일 화면을 기준으로 하며, Tablet/Desktop에서도 콘텐츠 자체가 넓게 확장되는 일반적인 반응형 웹 형태를 기본으로 하지 않는다.
+
+### App Shell
+
+서비스 전체 UI는 하나의 Mobile App Shell 안에서 동작하는 구조를 기본으로 한다.
+
+기본 원칙:
+
+- 모바일에서는 viewport 전체 너비를 사용한다.
+- 전체 화면 높이는 `100dvh`를 기준으로 한다.
+- 큰 화면에서는 모바일 앱 영역을 화면 중앙에 배치한다.
+- 앱 콘텐츠 최대 너비는 기본적으로 약 `430px`을 기준으로 한다.
+- App Shell의 최대 너비는 이후 쉽게 변경할 수 있는 형태로 관리한다.
+- Desktop에서 앱 콘텐츠를 임의로 넓혀 2-column, 3-column layout으로 변경하지 않는다.
+- 페이지마다 `max-width` 또는 동일한 container width를 반복해서 선언하지 않는다.
+- 서비스 전체 폭과 기본 레이아웃은 App Shell에서 일관되게 관리한다.
+- horizontal overflow가 발생하지 않도록 한다.
+
+개념적인 화면 구조:
+
+```text
+Mobile
+
+┌──────────────────────┐
+│                      │
+│      Application     │
+│                      │
+│                      │
+└──────────────────────┘
+
+
+Tablet / Desktop
+
+██████████████████████████████
+██████ ┌────────────────┐ █████
+██████ │                │ █████
+██████ │  Application   │ █████
+██████ │                │ █████
+██████ └────────────────┘ █████
+██████████████████████████████
+```
+
+Desktop의 외부 영역과 실제 App Surface는 구분할 수 있으나, 디자인 reference에 없는 과도한 shadow, border, decoration을 임의로 추가하지 않는다.
+
+## Application Layout Responsibility
+
+전체 서비스 공통 layout과 global UI foundation은 `application` Layer에서 관리한다.
+
+예:
+
+```text
+src/
+  app/
+    layout.tsx
+
+  application/
+    ui/
+      app_shell.tsx
+```
+
+`src/app/layout.tsx`는 Next.js root layout 및 routing entry 역할을 유지하고, 실제 서비스 공통 App Shell이 필요하다면 `application` Layer의 UI를 조합한다.
+
+예:
+
+```tsx
+<AppShell>
+  {children}
+</AppShell>
+```
+
+다음 값은 각 route 또는 domain에서 중복 정의하지 않고 가능한 한 application/global level에서 일관되게 관리한다.
+
+- App maximum width
+- global background
+- App surface
+- minimum viewport height
+- safe area
+- 기본 typography
+- global color token
+- global radius token
+- global spacing 원칙
+
+단순히 layout을 감싸기 위한 의미 없는 Wrapper Component를 여러 단계로 생성하지 않는다.
+
+## Safe Area Rules
+
+iOS를 포함한 모바일 브라우저 환경을 고려한다.
+
+필요한 영역에서는 다음 값을 사용할 수 있도록 한다.
+
+```css
+env(safe-area-inset-top)
+env(safe-area-inset-right)
+env(safe-area-inset-bottom)
+env(safe-area-inset-left)
+```
+
+다음 UI가 기기의 notch, Dynamic Island, Home Indicator 등에 가려지지 않도록 한다.
+
+- Header
+- Bottom Navigation
+- Fixed CTA
+- Bottom Sheet
+- Fixed Footer
+
+Safe Area 값을 모든 component에서 제각각 처리하지 않는다.
+
+반복되는 경우 global token 또는 공통 layout 수준에서 처리한다.
+
+## Scroll Rules
+
+기본적인 페이지 scroll은 browser/document scroll을 우선한다.
+
+특별한 UX 요구사항이 없다면 App Shell 내부에 별도의 전체 화면 scroll container를 만들지 않는다.
+
+다음과 같은 구조를 습관적으로 만들지 않는다.
+
+```text
+body
+  overflow-hidden
+
+AppShell
+  h-dvh
+  overflow-y-auto
+```
+
+별도의 scroll container는 실제로 필요한 경우에만 사용한다.
+
+Fixed Header 또는 Bottom Navigation을 사용할 경우:
+
+- 콘텐츠가 navigation 뒤에 가려지지 않아야 한다.
+- 필요한 padding을 고려한다.
+- Safe Area를 함께 고려한다.
+- scroll behavior를 불필요하게 복잡하게 만들지 않는다.
+
+## Global Design Foundation
+
+실제 페이지 UI 구현 전에 최소한의 global design foundation을 사용할 수 있다.
+
+초기 global token은 필요한 값만 정의한다.
+
+예:
+
+- background
+- foreground
+- surface
+- primary
+- muted
+- border
+- app maximum width
+- 기본 radius
+- 기본 typography
+
+CSS Variable과 Tailwind CSS를 적절히 조합할 수 있다.
+
+예:
+
+```css
+:root {
+  --app-max-width: 430px;
+
+  --background: ...;
+  --foreground: ...;
+  --surface: ...;
+  --primary: ...;
+  --muted: ...;
+  --border: ...;
+}
+```
+
+단, 실제 디자인에서 사용되지 않는 token을 미래 사용 가능성만으로 대량 생성하지 않는다.
+
+다음과 같은 과도한 token system을 초기에 만들지 않는다.
+
+- 수십 단계의 spacing token
+- 사용되지 않는 color palette 전체
+- 사용되지 않는 elevation system
+- 사용되지 않는 animation token
+- 사용되지 않는 component-specific token
+
+실제 UI에서 반복되는 패턴이 확인된 뒤 필요한 token을 추가한다.
+
+## Global CSS Rules
+
+`globals.css`는 application 전체에서 실제로 공통인 style만 관리한다.
+
+포함할 수 있는 항목:
+
+- CSS variables
+- 기본 reset
+- `box-sizing`
+- body margin
+- 기본 background / foreground
+- font smoothing
+- 기본 typography
+- horizontal overflow 방지
+- global App Shell 관련 foundation
+
+특정 page나 feature에만 필요한 style을 `globals.css`에 넣지 않는다.
+
+특정 domain의 UI style이 global CSS에 누적되지 않도록 한다.
+
+## Responsive Rules
+
+Responsive UI는 Mobile First 방식으로 작성한다.
+
+기본 순서:
+
+```text
+Mobile
+→ Tablet
+→ Desktop
+```
+
+단, 이 프로젝트에서 Desktop은 별도의 Desktop Service UI를 의미하지 않는다.
+
+기본적으로:
+
+```text
+0px ~ App Max Width
+→ viewport 전체 사용
+
+App Max Width 이상
+→ App Shell의 폭 유지
+→ 화면 중앙 정렬
+```
+
+형태를 사용한다.
+
+Desktop이라는 이유만으로 다음과 같은 변경을 임의로 하지 않는다.
+
+- 카드 여러 열 배치
+- Sidebar 추가
+- Navigation 구조 변경
+- 콘텐츠 폭 대폭 확대
+- Mobile flow를 Desktop dashboard 형태로 변경
+
+별도의 Desktop UX가 디자인 reference로 제공된 경우에만 적용한다.
+
+## Fixed UI Rules
+
+Header, Bottom Navigation, Fixed CTA 등 화면에 고정되는 UI는 실제 디자인에서 필요한 경우에만 구현한다.
+
+현재 필요하지 않은 다음 component를 App Shell을 구성한다는 이유만으로 미리 만들지 않는다.
+
+- Header
+- Bottom Navigation
+- Floating Button
+- Modal
+- Drawer
+- Bottom Sheet
+- Toast
+
+실제 화면 구현 과정에서 필요성이 확인되면 적절한 FSD Layer에 추가한다.
+
+## Design Reference
+
+현재 서비스의 모바일 UI 및 UX 방향은 아래 서비스를 주요 reference 중 하나로 사용한다.
+
+- [https://doryeong.app/](https://doryeong.app/)
+
+해당 서비스의 다음 특성을 참고할 수 있다.
+
+- 모바일 중심 화면 구성
+- 콘텐츠 영역의 폭
+- 페이지 hierarchy
+- Header / Navigation 배치 방식
+- 카드 및 section 간 간격
+- 모바일 앱과 유사한 웹 UX
+- Desktop에서 모바일 영역을 유지하는 방식
+
+단, reference는 Product Context와 사용자가 제공한 구체적인 디자인 요구사항보다 우선하지 않는다.
+
+Reference를 참고한다는 이유로 다음을 그대로 복제하지 않는다.
+
+- 서비스 문구
+- 브랜드명
+- 이미지
+- icon
+- 콘텐츠
+- business logic
+
+사용자가 screenshot 또는 구체적인 UI reference를 제공한 경우 해당 자료를 Visual Source of Truth로 취급한다.
+
+## Design Reference Priority
+
+UI 구현 시 디자인 판단의 우선순위는 다음과 같다.
+
+```text
+1. 사용자가 현재 작업에서 직접 제공한 screenshot / design
+2. 사용자가 현재 작업에서 명시한 요구사항
+3. docs/product_context.md
+4. 프로젝트의 기존 UI pattern
+5. 지정된 reference service
+6. coding agent의 자체적인 디자인 판단
+```
+
+상위 기준과 하위 기준이 충돌할 경우 상위 기준을 따른다.
+
+Coding agent의 자체적인 디자인 판단은 최후의 수단으로만 사용한다.
 
 ## Design Fidelity
 
