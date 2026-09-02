@@ -1,5 +1,5 @@
-import { ReadingsPage } from "@/domains/readings";
+import { SajuInputPage } from "@/domains/readings";
 
 export default function Page() {
-  return <ReadingsPage />;
+  return <SajuInputPage />;
 }
