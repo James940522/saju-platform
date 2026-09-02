@@ -1,245 +1,311 @@
+import type { LucideIcon } from "lucide-react";
 import {
-  Bell,
-  CalendarHeart,
+  BriefcaseBusiness,
+  CalendarDays,
+  ChartNoAxesCombined,
   ChevronRight,
-  Flame,
-  HeartHandshake,
-  Home,
+  Clock3,
+  Coins,
+  Heart,
+  History,
+  Menu,
   MessageCircleQuestion,
-  MoonStar,
+  RotateCcw,
   ScrollText,
   Sparkles,
-  UserRound,
+  SunMedium,
+  UsersRound,
 } from "lucide-react";
+import Link from "next/link";
 
-const fortuneMenus = [
+type CardTone = "rose" | "blue" | "violet";
+
+type ContentCard = {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  tone: CardTone;
+};
+
+const relationshipCards: ContentCard[] = [
   {
-    title: "사주 풀이",
-    description: "타고난 성향과 흐름",
-    price: "990원",
+    title: "연애운",
+    description: "지금 내 연애운은\n어떤 흐름일까?",
+    icon: Heart,
+    tone: "rose",
+  },
+  {
+    title: "두 사람 궁합",
+    description: "우리의 인연은\n어떻게 이어질까?",
+    icon: UsersRound,
+    tone: "blue",
+  },
+  {
+    title: "전생 관계",
+    description: "전생에 우리는\n어떤 관계였을까?",
+    icon: History,
+    tone: "violet",
+  },
+  {
+    title: "재회운",
+    description: "다시 만날 수 있을까?\n재회의 가능성은?",
+    icon: RotateCcw,
+    tone: "violet",
+  },
+];
+
+const nearFortunes = [
+  { title: "오늘 운세", description: "오늘의 흐름", icon: SunMedium },
+  { title: "이번 달 운세", description: "이달의 변화", icon: CalendarDays },
+  { title: "3개월 운세", description: "앞으로의 흐름", icon: Clock3 },
+];
+
+const otherReadings = [
+  {
+    title: "상세 사주",
+    description: "성향부터 미래의 흐름까지",
     icon: ScrollText,
   },
   {
-    title: "애정운",
-    description: "관계와 마음의 방향",
-    price: "990원",
-    icon: HeartHandshake,
+    title: "재물운 랭킹",
+    description: "우리 중 누가 제일 부자일까?",
+    icon: Coins,
   },
   {
-    title: "직업운",
-    description: "일과 선택의 기운",
-    price: "990원",
+    title: "올해 재물운",
+    description: "돈이 들어오는 시기",
+    icon: ChartNoAxesCombined,
+  },
+  {
+    title: "이직운",
+    description: "지금 옮겨도 괜찮을까?",
+    icon: BriefcaseBusiness,
+  },
+  {
+    title: "대운",
+    description: "10년 단위 인생의 큰 흐름",
     icon: Sparkles,
   },
   {
-    title: "궁합",
-    description: "두 사람의 리듬",
-    price: "990원",
-    icon: MoonStar,
-  },
-  {
-    title: "올해 운세",
-    description: "한 해의 큰 흐름",
-    price: "990원",
-    icon: CalendarHeart,
-  },
-  {
-    title: "고민 상담",
-    description: "지금 묻고 싶은 일",
-    price: "330원",
+    title: "고민 풀이",
+    description: "지금 마음에 걸리는 질문",
     icon: MessageCircleQuestion,
   },
 ];
 
-const todaySignals = [
-  { label: "관계", value: "차분히 듣기" },
-  { label: "일", value: "정리 후 결정" },
-  { label: "금전", value: "작은 지출 주의" },
-];
+const toneClasses: Record<CardTone, string> = {
+  rose: "bg-[#f9e3e8] text-[#b84964]",
+  blue: "bg-[#e6eef8] text-[#315b91]",
+  violet: "bg-[#eee5f8] text-[#67428f]",
+};
 
-const navItems = [
-  { label: "홈", icon: Home, isActive: true },
-  { label: "운세", icon: MoonStar, isActive: false },
-  { label: "기도", icon: Flame, isActive: false },
-  { label: "마이", icon: UserRound, isActive: false },
-];
+function CharacterSlot({ size = "small" }: { size?: "small" | "large" }) {
+  return (
+    <div
+      className={`grid shrink-0 place-items-center rounded-full border border-accent bg-[#fffaf0] font-display text-[#8f7137] ${
+        size === "large"
+          ? "size-[88px] text-sm min-[390px]:size-[104px]"
+          : "size-12 text-[10px] min-[390px]:size-14"
+      }`}
+      aria-label="캐릭터 이미지 자리"
+    >
+      캐릭터
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: string }) {
+  return (
+    <div className="mb-3 flex items-center gap-3">
+      <h2 className="shrink-0 font-display text-[21px] font-bold leading-none text-foreground">
+        {children}
+      </h2>
+      <span className="h-px w-full bg-border" aria-hidden="true" />
+    </div>
+  );
+}
 
 export function HomePage() {
   return (
-    <main className="min-h-dvh pb-[calc(86px+env(safe-area-inset-bottom))]">
-      <header className="px-5 pb-4 pt-[calc(18px+env(safe-area-inset-top))]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted">방문자님,</p>
-            <h1 className="mt-1 text-[28px] font-semibold leading-tight text-foreground">
-              오늘의 운을
-              <br />
-              차분히 살펴볼게요
-            </h1>
+    <main className="min-h-dvh">
+      <header className="flex items-center justify-between px-4 pb-4 pt-[calc(18px+env(safe-area-inset-top))]">
+        <div className="flex items-center gap-3">
+          <div className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface font-display text-sm font-bold text-primary">
+            00
           </div>
-          <button
-            className="grid size-11 place-items-center rounded-full border border-border bg-surface text-foreground"
-            type="button"
-            aria-label="알림 보기"
-          >
-            <Bell size={20} strokeWidth={1.8} />
-          </button>
+          <div>
+            <p className="font-display text-[22px] font-bold leading-none text-foreground">
+              00사주
+            </p>
+            <p className="mt-1.5 text-[11px] text-muted">
+              당신의 오늘을 함께 바라봅니다
+            </p>
+          </div>
         </div>
+        <button
+          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-foreground"
+          type="button"
+          aria-label="전체 메뉴 열기"
+        >
+          <Menu size={21} strokeWidth={1.7} />
+        </button>
       </header>
 
-      <section className="px-5">
-        <div className="rounded-[24px] border border-paper-border bg-paper p-5 shadow-soft">
-          <div className="flex items-start gap-4">
-            <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground">
-              <MoonStar size={30} strokeWidth={1.6} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                Today
-              </p>
-              <h2 className="mt-2 text-xl font-semibold leading-snug text-foreground">
-                생년월일을 입력하고 나만의 흐름을 받아보세요
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                사주 구조와 오늘의 기운을 한 화면에서 가볍게 확인할 수
-                있도록 준비 중입니다.
-              </p>
-            </div>
-          </div>
-          <div className="mt-5 grid grid-cols-[1fr_auto] gap-2">
-            <a
-              className="flex h-12 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background"
-              href="#birth-start"
+      <section className="px-4">
+        <div className="grid min-h-[252px] grid-cols-[minmax(0,1fr)_88px] items-center gap-2 overflow-hidden rounded-[22px] bg-hero px-5 py-6 text-primary-foreground shadow-soft min-[390px]:grid-cols-[minmax(0,1fr)_104px]">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-[#e4bd61]">
+              AI 프리미엄 사주 풀이
+            </p>
+            <h1 className="mt-3 font-display text-[25px] font-bold leading-[1.38]">
+              AI가 풀어주는
+              <br />
+              나의 사주 이야기
+            </h1>
+            <p className="mt-3 text-[13px] leading-6 text-[#dce4ef]">
+              타고난 운명과 흐름을
+              <br />
+              쉽고 깊이 있게 풀어드려요.
+            </p>
+            <Link
+              className="mt-5 flex h-11 w-full items-center justify-center gap-1 rounded-full bg-[#e1b957] px-3 text-[12px] font-bold text-[#2b3441]"
+              href="/my-saju"
             >
-              내 사주 입력하기
-            </a>
-            <a
-              className="grid size-12 place-items-center rounded-full border border-border bg-surface text-foreground"
-              href="#daily-fortune"
-              aria-label="오늘의 운세 보기"
-            >
-              <ChevronRight size={21} strokeWidth={1.8} />
-            </a>
+              AI 사주 풀이 시작하기
+              <ChevronRight size={17} strokeWidth={2} />
+            </Link>
           </div>
+          <CharacterSlot size="large" />
         </div>
       </section>
 
-      <section className="mt-5 px-5" id="daily-fortune">
-        <div className="rounded-2xl bg-surface p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-foreground">
-                오늘의 기운
-              </p>
-              <p className="mt-1 text-sm text-muted">매일 바뀌는 무료 운세</p>
-            </div>
-            <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-              무료
-            </span>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {todaySignals.map((signal) => (
-              <div
-                className="min-h-20 rounded-2xl border border-border bg-background p-3"
-                key={signal.label}
-              >
-                <p className="text-xs text-muted">{signal.label}</p>
-                <p className="mt-2 text-sm font-semibold leading-5 text-foreground">
-                  {signal.value}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-7 px-5">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium text-muted">운세 메뉴</p>
-            <h2 className="mt-1 text-xl font-semibold text-foreground">
-              필요한 풀이만 골라보기
-            </h2>
-          </div>
-          <a
-            className="shrink-0 text-sm font-semibold text-primary"
-            href="#fortune-list"
-          >
-            전체
-          </a>
-        </div>
-        <div className="grid grid-cols-2 gap-3" id="fortune-list">
-          {fortuneMenus.map((menu) => {
-            const Icon = menu.icon;
+      <section className="mt-6 px-4">
+        <SectionTitle>사랑과 인연을 위한 풀이</SectionTitle>
+        <div className="grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2">
+          {relationshipCards.map((card) => {
+            const Icon = card.icon;
 
             return (
-              <article
-                className="min-h-[154px] rounded-2xl border border-border bg-surface p-4"
-                key={menu.title}
+              <Link
+                className="grid min-h-[116px] grid-cols-[minmax(0,1fr)_48px] items-center gap-2 rounded-2xl border border-border bg-surface p-3.5 min-[390px]:grid-cols-[minmax(0,1fr)_56px]"
+                href="/readings"
+                key={card.title}
               >
-                <div className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary">
-                  <Icon size={20} strokeWidth={1.8} />
+                <div className="min-w-0">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${toneClasses[card.tone]}`}
+                  >
+                    <Icon size={13} strokeWidth={2} />
+                    {card.title}
+                  </span>
+                  <p className="mt-3 whitespace-pre-line text-[13px] font-medium leading-5 text-foreground">
+                    {card.description}
+                  </p>
                 </div>
-                <h3 className="mt-4 text-base font-semibold text-foreground">
-                  {menu.title}
-                </h3>
-                <p className="mt-1 min-h-10 text-sm leading-5 text-muted">
-                  {menu.description}
-                </p>
-                <p className="mt-3 text-sm font-semibold text-foreground">
-                  {menu.price}
-                </p>
-              </article>
+                <CharacterSlot />
+              </Link>
             );
           })}
         </div>
       </section>
 
-      <section className="mt-7 px-5" id="birth-start">
-        <div className="rounded-[24px] bg-foreground p-5 text-background">
-          <p className="text-sm font-medium text-background/70">입력 흐름</p>
-          <h2 className="mt-2 text-xl font-semibold leading-snug">
-            태어난 날과 시간을 알면 더 섬세하게 볼 수 있어요
-          </h2>
-          <div className="mt-5 space-y-3">
-            {["생년월일", "출생 시간", "관심 주제"].map((step, index) => (
-              <div className="flex items-center gap-3" key={step}>
-                <span className="grid size-7 place-items-center rounded-full bg-background/12 text-xs font-semibold">
-                  {index + 1}
-                </span>
-                <span className="text-sm font-medium">{step}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <nav
-        className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-[var(--app-max-width)] border-t border-border bg-surface/95 px-4 pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 backdrop-blur"
-        aria-label="주요 메뉴"
-      >
-        <div className="grid grid-cols-4 gap-1">
-          {navItems.map((item) => {
+      <section className="mt-6 px-4">
+        <SectionTitle>오늘 · 이번 달 · 앞으로</SectionTitle>
+        <div className="grid grid-cols-3 gap-2">
+          {nearFortunes.map((item) => {
             const Icon = item.icon;
 
             return (
-              <a
-                className={`flex min-h-14 flex-col items-center justify-center rounded-2xl text-xs font-semibold ${
-                  item.isActive
-                    ? "bg-primary-soft text-primary"
-                    : "text-muted"
-                }`}
-                href="#"
-                key={item.label}
-                aria-current={item.isActive ? "page" : undefined}
+              <Link
+                className="flex min-h-[92px] flex-col items-center justify-center rounded-2xl border border-border bg-surface px-2 py-3 text-center"
+                href="/fortune"
+                key={item.title}
               >
-                <Icon size={20} strokeWidth={1.8} />
-                <span className="mt-1">{item.label}</span>
-              </a>
+                <Icon className="text-primary" size={24} strokeWidth={1.6} />
+                <h3 className="mt-2 text-[12px] font-bold text-foreground">
+                  {item.title}
+                </h3>
+                <p className="mt-1 text-[10px] text-muted">{item.description}</p>
+              </Link>
             );
           })}
         </div>
-      </nav>
+      </section>
+
+      <section className="mt-5 px-4">
+        <Link
+          className="flex min-h-[78px] items-center gap-3 rounded-2xl border border-paper-border bg-surface px-4 py-3"
+          href="/fortune"
+        >
+          <div className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-[#936c21]">
+            <SunMedium size={25} strokeWidth={1.6} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="font-display text-[17px] font-bold text-foreground">
+              오늘의 운세 · 무료
+            </h2>
+            <p className="mt-1 text-[11px] text-muted">
+              매일 달라지는 오늘의 흐름을 확인해보세요
+            </p>
+          </div>
+          <span className="inline-flex h-8 shrink-0 items-center gap-0.5 rounded-full border border-paper-border px-3 text-[11px] font-semibold text-[#8b6826]">
+            보기
+            <ChevronRight size={14} />
+          </span>
+        </Link>
+      </section>
+
+      <section className="mt-6 px-4">
+        <SectionTitle>이런 풀이도 있어요</SectionTitle>
+        <div className="grid grid-cols-1 gap-2.5 min-[360px]:grid-cols-2">
+          {otherReadings.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <Link
+                className="grid min-h-[108px] grid-cols-[minmax(0,1fr)_48px] items-center gap-2 rounded-2xl border border-border bg-surface p-3.5 min-[390px]:grid-cols-[minmax(0,1fr)_56px]"
+                href="/readings"
+                key={item.title}
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <Icon
+                      className="shrink-0 text-primary"
+                      size={17}
+                      strokeWidth={1.8}
+                    />
+                    <h3 className="text-[13px] font-bold text-foreground">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="mt-2 text-[11px] leading-[1.55] text-muted">
+                    {item.description}
+                  </p>
+                </div>
+                <CharacterSlot />
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-5 px-4 pb-4">
+        <div className="grid min-h-[138px] grid-cols-[minmax(0,1fr)_76px] items-center gap-3 rounded-2xl border border-paper-border bg-paper p-4">
+          <div>
+            <h2 className="font-display text-[18px] font-bold text-foreground">
+              00사주가 전하는 마음
+            </h2>
+            <p className="mt-2 text-[12px] leading-6 text-muted">
+              어려운 말보다 궁금한 질문에 먼저 답하고,
+              <br />
+              더 나은 선택을 할 수 있도록 함께합니다.
+            </p>
+          </div>
+          <div className="grid size-[76px] place-items-center rounded-full border border-accent bg-surface font-display text-[12px] text-[#8f7137]">
+            캐릭터
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

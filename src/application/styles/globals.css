@@ -1,19 +1,27 @@
 @import "tailwindcss";
+@import "@fontsource/gowun-batang/400.css";
+@import "@fontsource/gowun-batang/700.css";
 
 :root {
   --app-max-width: 430px;
-  --app-outer: #e8e0d2;
+  --app-outer: #f3ecdf;
   --background: #fbf7ee;
-  --foreground: #29231c;
+  --foreground: #2d2b26;
   --surface: #fffdf8;
-  --paper: #f6eddc;
-  --paper-border: #ead9bd;
-  --primary: #8a3d2b;
-  --primary-soft: #f1ded3;
-  --primary-foreground: #fff7ed;
-  --muted: #7f7163;
-  --border: #eadfce;
-  --shadow-soft: 0 18px 45px rgba(76, 51, 27, 0.08);
+  --paper: #f8f1e4;
+  --paper-border: #dfcfb3;
+  --primary: #1c385e;
+  --primary-soft: #eaf0f7;
+  --primary-foreground: #fffaf0;
+  --accent: #c99d47;
+  --accent-soft: #f4e4b7;
+  --hero: #172f52;
+  --muted: #796f61;
+  --border: #e5d7c0;
+  --shadow-soft: 0 14px 36px rgba(76, 62, 40, 0.09);
+  --font-sans-stack: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR",
+    "Malgun Gothic", system-ui, sans-serif;
+  --font-display-stack: "Gowun Batang", "AppleMyungjo", "Batang", serif;
 }
 
 @theme inline {
@@ -26,10 +34,14 @@
   --color-primary: var(--primary);
   --color-primary-soft: var(--primary-soft);
   --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-hero: var(--hero);
   --color-muted: var(--muted);
   --color-border: var(--border);
   --shadow-soft: var(--shadow-soft);
   --font-sans: var(--font-sans-stack);
+  --font-display: var(--font-display-stack);
 }
 
 * {
@@ -54,9 +66,4 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
-}
-
-:root {
-  --font-sans-stack: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR",
-    "Malgun Gothic", system-ui, sans-serif;
 }

@@ -4,8 +4,8 @@ import { AppShell } from "@/application";
 import "@/application/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "사주 운세 서비스",
-  description: "생년월일과 출생 시간을 바탕으로 사주와 운세 흐름을 확인하는 모바일 중심 서비스입니다.",
+  title: "00사주",
+  description: "나의 사주와 오늘의 흐름을 쉽고 따뜻하게 풀어보는 서비스",
 };
 
 type RootLayoutProps = Readonly<{
