@@ -81,7 +81,8 @@ Frontend architecture는 Feature-Sliced Design(FSD)을 사용한다.
 ```text
 src/
   app/
-  views/
+  application/
+  domains/
   widgets/
   features/
   entities/
@@ -90,28 +91,33 @@ src/
 
 Layer 책임은 다음과 같다.
 
-- `src/app`: Next.js routing, layout, provider, global configuration, application initialization
-- `src/views`: route 단위 화면 구성
+- `src/app`: Next.js routing entry, route segment, layout, page
+- `src/application`: provider, global style, global configuration, application initialization
+- `src/domains`: route/page별 페이지 특화 코드 집합
 - `src/widgets`: 여러 feature/entity를 조합한 독립 UI block
 - `src/features`: 사용자 행동과 use case
 - `src/entities`: 핵심 domain model
 - `src/shared`: business domain에 종속되지 않는 공통 코드
 
-Next.js의 `pages` directory와 혼동하지 않기 위해 FSD Pages Layer는 `views`라고 부른다.
+Next.js의 `pages` directory와 혼동하지 않기 위해 FSD Pages Layer 성격의 코드는 `domains`라고 부른다. 여기서 `domains`는 business entity가 아니라 route/page별 캡슐화 영역을 의미한다.
 
 ## Dependency Direction
 
 FSD dependency 방향은 다음을 따른다.
 
 ```text
-app -> views -> widgets -> features -> entities -> shared
+app -> application
+app -> domains -> widgets -> features -> entities -> shared
+application -> shared
 ```
 
 하위 Layer가 상위 Layer를 import하면 안 된다.
 
 허용 예:
 
-- `views` -> `widgets`
+- `app` -> `application`
+- `app` -> `domains`
+- `domains` -> `widgets`
 - `widgets` -> `features`
 - `features` -> `entities`
 - `features` -> `shared`
@@ -122,7 +128,8 @@ app -> views -> widgets -> features -> entities -> shared
 - `shared` -> `entities`
 - `entities` -> `features`
 - `features` -> `widgets`
-- `widgets` -> `views`
+- `widgets` -> `domains`
+- `application` -> `domains`
 
 Slice 외부에서 내부 구현 파일을 직접 import하지 않는다. 다른 Layer나 Slice에서 사용해야 하는 항목은 해당 Slice의 public API를 통해 노출한다.
 
@@ -130,7 +137,7 @@ Slice 외부에서 내부 구현 파일을 직접 import하지 않는다. 다른
 
 - App Router는 `src/app` 아래에 둔다.
 - `page.tsx`는 route entry로 얇게 유지한다.
-- 실제 route UI는 가능한 한 `src/views`에서 구성한다.
+- 실제 route UI는 가능한 한 `src/domains`에서 구성한다.
 - Server Component를 기본값으로 사용한다.
 - Client Component는 event handler, browser API, client state, React client hook이 필요한 곳에만 사용한다.
 - `"use client"` boundary는 최대한 작은 단위에 둔다.
@@ -145,7 +152,7 @@ Slice 외부에서 내부 구현 파일을 직접 import하지 않는다. 다른
 예:
 
 ```ts
-import { SomeView } from "@/views/some_view";
+import { HomeDomain } from "@/domains/home";
 ```
 
 상대 경로가 더 명확한 가까운 파일에는 상대 import를 사용할 수 있다. 여러 계층을 거슬러 올라가는 import가 반복되면 `@/*` alias를 우선 고려한다.

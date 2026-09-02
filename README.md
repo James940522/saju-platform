@@ -22,14 +22,15 @@
 ```text
 src/
   app/
-  views/
+  application/
+  domains/
   widgets/
   features/
   entities/
   shared/
 ```
 
-`src/app`은 Next.js App Router entry다. 실제 route 단위 화면 구현은 이후 `src/views`를 중심으로 구성한다.
+`src/app`은 Next.js App Router entry다. 전역 설정과 global style은 `src/application`, 실제 route 단위 화면 구현은 이후 `src/domains`를 중심으로 구성한다.
 
 ## Development
 

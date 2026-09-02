@@ -64,21 +64,25 @@ Frontend는 Feature-Sliced Design(FSD)을 사용한다.
 ```text
 src/
   app/
-  views/
+  application/
+  domains/
   widgets/
   features/
   entities/
   shared/
 ```
 
-이 프로젝트에서는 Next.js App Router의 `src/app`과 FSD의 App Layer를 함께 사용한다.
+이 프로젝트에서는 Next.js App Router의 `src/app`을 라우팅 진입점으로 사용한다.
 
-Next.js의 `pages` directory와 혼동하지 않기 위해 FSD Pages Layer는 `views`라는 이름을 사용한다.
+FSD의 App Layer 성격 중 전역 설정, provider, global style은 `application`에서 관리한다.
+
+Next.js의 `pages` directory와 혼동하지 않기 위해 FSD Pages Layer 성격의 페이지 특화 코드는 `domains`라는 이름을 사용한다. 여기서 `domains`는 business entity가 아니라 route/page별 캡슐화 영역을 의미한다.
 
 Layer 책임은 다음과 같다.
 
-- `app`: Next.js routing, layout, provider, global configuration, application initialization
-- `views`: 하나의 route를 구성하는 페이지 단위 UI
+- `app`: Next.js routing entry, route segment, layout, page
+- `application`: provider, global style, global configuration, application initialization
+- `domains`: 하나의 route를 구성하는 페이지 특화 코드 집합
 - `widgets`: 여러 feature/entity를 조합한 큰 독립 UI block
 - `features`: 사용자의 행동과 use case
 - `entities`: 핵심 domain model
@@ -87,16 +91,20 @@ Layer 책임은 다음과 같다.
 FSD dependency 방향은 반드시 아래 흐름을 따른다.
 
 ```text
-app -> views -> widgets -> features -> entities -> shared
+app -> application
+app -> domains -> widgets -> features -> entities -> shared
+application -> shared
 ```
 
 허용 예:
 
+- `app` -> `application`
+- `app` -> `domains`
+- `domains` -> `widgets`
 - `features` -> `entities`
 - `features` -> `shared`
 - `widgets` -> `features`
 - `widgets` -> `entities`
-- `views` -> `widgets`
 
 금지 예:
 
@@ -104,6 +112,8 @@ app -> views -> widgets -> features -> entities -> shared
 - `shared` -> `features`
 - `entities` -> `features`
 - `features` -> `widgets`
+- `widgets` -> `domains`
+- `application` -> `domains`
 
 Slice 외부에서 내부 구현 파일에 직접 접근하지 않는다. 필요한 경우 slice의 public API를 통해 접근한다.
 
@@ -166,7 +176,7 @@ Slice 내부에서는 필요한 경우 다음 segment 이름을 우선 사용한
 
 - App Router를 사용한다.
 - `src/app`의 `page.tsx`는 routing entry 역할을 하도록 얇게 유지한다.
-- 실제 화면 구성은 가능한 한 `src/views` 아래에서 관리한다.
+- 실제 화면 구성은 가능한 한 `src/domains` 아래에서 관리한다.
 - Server Component를 기본으로 한다.
 - event handler, browser API, client state, React client hook이 실제 필요한 경우에만 Client Component를 사용한다.
 - `"use client"`를 page 최상단에 습관적으로 추가하지 않는다.
