@@ -1,35 +1,80 @@
 import { ArrowLeft, CircleHelp } from "lucide-react";
 import Link from "next/link";
-import { SajuInputForm } from "@/features/saju_input";
+import { notFound } from "next/navigation";
+import { getReadingDefinition } from "@/entities/reading";
+import type { SajuProfileSlot } from "@/entities/saju_profile";
+import { DemoAuthGate } from "@/features/demo_auth";
+import { CreateSajuProfileForm } from "@/features/saju_input";
+import { routes } from "@/shared/config";
 
 const steps = ["정보 입력", "정보 확인", "사주 구성", "풀이 준비"];
 
-export function SajuInputPage() {
+type SajuProfileCreatePageProps = {
+  intent?: string;
+  role?: string;
+};
+
+export function SajuProfileCreatePage({
+  intent,
+  role,
+}: SajuProfileCreatePageProps) {
+  const reading = intent ? getReadingDefinition(intent) : undefined;
+
+  if (intent && !reading) {
+    notFound();
+  }
+
+  if (role && role !== "default" && role !== "partner") {
+    notFound();
+  }
+
+  const slot: SajuProfileSlot = role === "partner" ? "partner" : "default";
+
+  if (
+    slot === "partner" &&
+    (!reading || reading.subjectRequirement.type !== "pair")
+  ) {
+    notFound();
+  }
+
+  const isPartner = slot === "partner";
+  const backHref = reading ? routes.reading(reading.code) : routes.mySaju;
+  const completionHref = reading
+    ? routes.readingStart(reading.code)
+    : routes.mySaju;
+  const profileLabel = isPartner ? "상대 사주" : "내 사주";
+  const loginHref = routes.login({
+    target: "profile",
+    ...(reading ? { intent: reading.code } : {}),
+    role: slot,
+  });
+
   return (
     <main className="min-h-dvh px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))]">
       <header className="flex items-center justify-between">
         <Link
           className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted"
-          href="/"
-          aria-label="홈으로 돌아가기"
+          href={backHref}
+          aria-label={reading ? `${reading.title} 소개로 돌아가기` : "내 사주로 돌아가기"}
         >
           <ArrowLeft size={22} strokeWidth={1.7} />
         </Link>
         <div className="min-w-0 flex-1 px-3">
           <h1 className="font-display text-[23px] font-bold leading-none text-foreground">
-            내 사주 입력
+            {profileLabel} 입력
           </h1>
           <p className="mt-1.5 text-[11px] text-muted">
-            정확한 정보가 좋은 풀이의 시작이에요
+            {reading
+              ? `${reading.title}에 사용할 정보를 입력해요`
+              : "정확한 정보가 좋은 풀이의 시작이에요"}
           </p>
         </div>
-        <button
+        <span
+          aria-hidden="true"
           className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted"
-          type="button"
-          aria-label="사주 정보 입력 도움말"
         >
           <CircleHelp size={21} strokeWidth={1.7} />
-        </button>
+        </span>
       </header>
 
       <ol className="mt-7 grid grid-cols-4" aria-label="풀이 진행 단계">
@@ -74,14 +119,20 @@ export function SajuInputPage() {
           <p className="mt-2 text-[11px] leading-5 text-[#dce4ef]">
             생년월일과 시간을 바탕으로
             <br />
-            나만의 사주를 구성해요.
+            {profileLabel}를 구성해요.
             <br />
-            모를 경우 비워두어도 괜찮아요.
+            출생 시간을 몰라도 진행할 수 있어요.
           </p>
         </div>
       </section>
 
-      <SajuInputForm />
+      <DemoAuthGate loginHref={loginHref}>
+        <CreateSajuProfileForm
+          completionHref={completionHref}
+          slot={slot}
+          submitLabel={`${profileLabel} 저장하기`}
+        />
+      </DemoAuthGate>
     </main>
   );
 }

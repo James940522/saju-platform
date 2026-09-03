@@ -1,29 +1,36 @@
-import { CalendarDays, MoonStar, Sparkles, Sunrise } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { CalendarDays, MoonStar, Sunrise } from "lucide-react";
+import Link from "next/link";
+import type { ReadingCode } from "@/entities/reading";
+import { routes } from "@/shared/config";
 
-const fortuneItems = [
+const fortuneItems: Array<{
+  code: ReadingCode;
+  title: string;
+  description: string;
+  badge: string;
+  icon: LucideIcon;
+}> = [
   {
+    code: "daily-fortune",
     title: "오늘의 운세",
     description: "하루의 관계, 일, 금전 흐름",
     badge: "무료",
     icon: Sunrise,
   },
   {
-    title: "이번 주 운세",
-    description: "이번 주에 챙겨야 할 기운",
+    code: "monthly-fortune",
+    title: "이번 달 운세",
+    description: "월간 흐름과 선택 포인트",
     badge: "준비 중",
     icon: CalendarDays,
   },
   {
-    title: "이번 달 운세",
-    description: "월간 흐름과 선택 포인트",
+    code: "three-month-fortune",
+    title: "3개월 운세",
+    description: "앞으로 세 달의 변화와 기회",
     badge: "준비 중",
     icon: MoonStar,
-  },
-  {
-    title: "신년 운세",
-    description: "새해의 방향과 주의할 시기",
-    badge: "준비 중",
-    icon: Sparkles,
   },
 ];
 
@@ -44,9 +51,10 @@ export function FortunePage() {
           const Icon = item.icon;
 
           return (
-            <article
+            <Link
               className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4"
-              key={item.title}
+              href={routes.reading(item.code)}
+              key={item.code}
             >
               <div className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
                 <Icon size={22} strokeWidth={1.8} />
@@ -62,7 +70,7 @@ export function FortunePage() {
               <span className="shrink-0 rounded-full bg-background px-3 py-1 text-xs font-semibold text-primary">
                 {item.badge}
               </span>
-            </article>
+            </Link>
           );
         })}
       </section>

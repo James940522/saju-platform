@@ -8,7 +8,6 @@ import {
   Coins,
   Heart,
   History,
-  Menu,
   MessageCircleQuestion,
   RotateCcw,
   ScrollText,
@@ -17,10 +16,14 @@ import {
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import type { ReadingCode } from "@/entities/reading";
+import { DemoAuthButton } from "@/features/demo_auth";
+import { routes } from "@/shared/config";
 
 type CardTone = "rose" | "blue" | "violet";
 
 type ContentCard = {
+  code: ReadingCode;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -29,24 +32,28 @@ type ContentCard = {
 
 const relationshipCards: ContentCard[] = [
   {
+    code: "love-fortune",
     title: "연애운",
     description: "지금 내 연애운은\n어떤 흐름일까?",
     icon: Heart,
     tone: "rose",
   },
   {
+    code: "couple-compatibility",
     title: "두 사람 궁합",
     description: "우리의 인연은\n어떻게 이어질까?",
     icon: UsersRound,
     tone: "blue",
   },
   {
+    code: "past-life-relationship",
     title: "전생 관계",
     description: "전생에 우리는\n어떤 관계였을까?",
     icon: History,
     tone: "violet",
   },
   {
+    code: "reunion-fortune",
     title: "재회운",
     description: "다시 만날 수 있을까?\n재회의 가능성은?",
     icon: RotateCcw,
@@ -54,39 +61,70 @@ const relationshipCards: ContentCard[] = [
   },
 ];
 
-const nearFortunes = [
-  { title: "오늘 운세", description: "오늘의 흐름", icon: SunMedium },
-  { title: "이번 달 운세", description: "이달의 변화", icon: CalendarDays },
-  { title: "3개월 운세", description: "앞으로의 흐름", icon: Clock3 },
+const nearFortunes: Array<{
+  code: ReadingCode;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
+  {
+    code: "daily-fortune",
+    title: "오늘 운세",
+    description: "오늘의 흐름",
+    icon: SunMedium,
+  },
+  {
+    code: "monthly-fortune",
+    title: "이번 달 운세",
+    description: "이달의 변화",
+    icon: CalendarDays,
+  },
+  {
+    code: "three-month-fortune",
+    title: "3개월 운세",
+    description: "앞으로의 흐름",
+    icon: Clock3,
+  },
 ];
 
-const otherReadings = [
+const otherReadings: Array<{
+  code: ReadingCode;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
   {
+    code: "detailed-saju",
     title: "상세 사주",
     description: "성향부터 미래의 흐름까지",
     icon: ScrollText,
   },
   {
+    code: "wealth-ranking",
     title: "재물운 랭킹",
     description: "우리 중 누가 제일 부자일까?",
     icon: Coins,
   },
   {
+    code: "yearly-wealth",
     title: "올해 재물운",
     description: "돈이 들어오는 시기",
     icon: ChartNoAxesCombined,
   },
   {
+    code: "job-change",
     title: "이직운",
     description: "지금 옮겨도 괜찮을까?",
     icon: BriefcaseBusiness,
   },
   {
+    code: "major-luck",
     title: "대운",
     description: "10년 단위 인생의 큰 흐름",
     icon: Sparkles,
   },
   {
+    code: "concern-reading",
     title: "고민 풀이",
     description: "지금 마음에 걸리는 질문",
     icon: MessageCircleQuestion,
@@ -142,13 +180,7 @@ export function HomePage() {
             </p>
           </div>
         </div>
-        <button
-          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-foreground"
-          type="button"
-          aria-label="전체 메뉴 열기"
-        >
-          <Menu size={21} strokeWidth={1.7} />
-        </button>
+        <DemoAuthButton />
       </header>
 
       <section className="px-4">
@@ -169,7 +201,7 @@ export function HomePage() {
             </p>
             <Link
               className="mt-5 flex h-11 w-full items-center justify-center gap-1 rounded-full bg-[#e1b957] px-3 text-[12px] font-bold text-[#2b3441]"
-              href="/my-saju"
+              href={routes.reading("detailed-saju")}
             >
               AI 사주 풀이 시작하기
               <ChevronRight size={17} strokeWidth={2} />
@@ -188,7 +220,7 @@ export function HomePage() {
             return (
               <Link
                 className="grid min-h-[116px] grid-cols-[minmax(0,1fr)_48px] items-center gap-2 rounded-2xl border border-border bg-surface p-3.5 min-[390px]:grid-cols-[minmax(0,1fr)_56px]"
-                href="/readings"
+                href={routes.reading(card.code)}
                 key={card.title}
               >
                 <div className="min-w-0">
@@ -218,7 +250,7 @@ export function HomePage() {
             return (
               <Link
                 className="flex min-h-[92px] flex-col items-center justify-center rounded-2xl border border-border bg-surface px-2 py-3 text-center"
-                href="/fortune"
+                href={routes.reading(item.code)}
                 key={item.title}
               >
                 <Icon className="text-primary" size={24} strokeWidth={1.6} />
@@ -235,7 +267,7 @@ export function HomePage() {
       <section className="mt-5 px-4">
         <Link
           className="flex min-h-[78px] items-center gap-3 rounded-2xl border border-paper-border bg-surface px-4 py-3"
-          href="/fortune"
+          href={routes.reading("daily-fortune")}
         >
           <div className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-[#936c21]">
             <SunMedium size={25} strokeWidth={1.6} />
@@ -264,7 +296,7 @@ export function HomePage() {
             return (
               <Link
                 className="grid min-h-[108px] grid-cols-[minmax(0,1fr)_48px] items-center gap-2 rounded-2xl border border-border bg-surface p-3.5 min-[390px]:grid-cols-[minmax(0,1fr)_56px]"
-                href="/readings"
+                href={routes.reading(item.code)}
                 key={item.title}
               >
                 <div className="min-w-0">

@@ -11,7 +11,11 @@ import {
   SunMedium,
 } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getReadingDefinition } from "@/entities/reading";
+import { ReadingAccessGate } from "@/features/reading_access";
 import { SaveResultButton } from "@/features/result_save";
+import { routes } from "@/shared/config";
 
 const relationshipFlow = [
   {
@@ -76,14 +80,14 @@ function SectionTitle({ children }: { children: string }) {
   );
 }
 
-export function PastLifeRelationshipPage() {
+function PastLifeRelationshipContent() {
   return (
     <main className="min-h-dvh px-4 pb-[calc(22px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))]">
       <header className="flex items-center justify-between">
         <Link
           className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted"
-          href="/readings"
-          aria-label="사주 입력으로 돌아가기"
+          href={routes.readingStart("past-life-relationship")}
+          aria-label="풀이 준비로 돌아가기"
         >
           <ArrowLeft size={22} strokeWidth={1.7} />
         </Link>
@@ -285,13 +289,34 @@ export function PastLifeRelationshipPage() {
       <div className="mt-3 flex gap-2">
         <Link
           className="flex h-13 flex-1 items-center justify-center gap-2 rounded-xl border border-paper-border bg-surface px-3 text-sm font-semibold text-foreground"
-          href="/readings"
+          href={routes.profileNew({
+            intent: "past-life-relationship",
+            role: "partner",
+          })}
         >
           <Plus size={18} />
-          다른 사람 추가
+          상대 다시 입력
         </Link>
         <SaveResultButton />
       </div>
     </main>
+  );
+}
+
+export function PastLifeRelationshipPage() {
+  const reading = getReadingDefinition("past-life-relationship");
+
+  if (!reading?.price) {
+    notFound();
+  }
+
+  return (
+    <ReadingAccessGate
+      readingCode={reading.code}
+      requiredPaymentAmount={reading.price}
+      requiresPartner
+    >
+      <PastLifeRelationshipContent />
+    </ReadingAccessGate>
   );
 }

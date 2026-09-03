@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   BriefcaseBusiness,
   CalendarHeart,
@@ -6,80 +7,54 @@ import {
   MessageCircleQuestion,
   ScrollText,
 } from "lucide-react";
+import Link from "next/link";
+import { readingCatalog, type ReadingTheme } from "@/entities/reading";
+import { routes } from "@/shared/config";
 
-const readingItems = [
-  {
-    title: "타고난 사주",
-    description: "성향, 기질, 인생 전반의 큰 구조",
-    price: "990원",
-    icon: ScrollText,
-  },
-  {
-    title: "재물운",
-    description: "돈의 흐름과 지켜야 할 선택",
-    price: "990원",
-    icon: Coins,
-  },
-  {
-    title: "연애운",
-    description: "마음의 흐름과 관계의 온도",
-    price: "990원",
-    icon: HeartHandshake,
-  },
-  {
-    title: "직업운",
-    description: "일의 방향과 맞는 역할",
-    price: "990원",
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: "올해의 사주",
-    description: "올해 조심할 때와 밀어붙일 때",
-    price: "990원",
-    icon: CalendarHeart,
-  },
-  {
-    title: "고민 풀이",
-    description: "지금 궁금한 일을 직접 묻기",
-    price: "330원",
-    icon: MessageCircleQuestion,
-  },
-];
+const themeIcons: Record<ReadingTheme, LucideIcon> = {
+  self: ScrollText,
+  relationship: HeartHandshake,
+  fortune: CalendarHeart,
+  wealth: Coins,
+  career: BriefcaseBusiness,
+  question: MessageCircleQuestion,
+};
 
 export function ReadingsPage() {
   return (
     <main className="min-h-dvh px-5 pt-[calc(22px+env(safe-area-inset-top))]">
-      <p className="text-sm font-medium text-muted">깊게 보는 콘텐츠</p>
+      <p className="text-sm font-medium text-muted">궁금한 주제별 콘텐츠</p>
       <h1 className="mt-1 text-[28px] font-semibold leading-tight text-foreground">
         풀이
       </h1>
       <p className="mt-3 text-sm leading-6 text-muted">
-        타고난 성향과 관계, 일, 돈처럼 한 번 깊게 읽고 싶은 주제를 모아둔
-        영역입니다.
+        오늘의 흐름부터 관계, 일, 돈, 타고난 성향까지 원하는 풀이를
+        골라보세요.
       </p>
 
       <section className="mt-6 grid grid-cols-2 gap-3">
-        {readingItems.map((item) => {
-          const Icon = item.icon;
+        {readingCatalog.map((reading) => {
+          const Icon = themeIcons[reading.theme];
 
           return (
-            <article
+            <Link
               className="min-h-[158px] rounded-2xl border border-border bg-surface p-4"
-              key={item.title}
+              href={routes.reading(reading.code)}
+              key={reading.code}
             >
               <div className="grid size-10 place-items-center rounded-xl bg-primary-soft text-primary">
                 <Icon size={20} strokeWidth={1.8} />
               </div>
               <h2 className="mt-4 text-base font-semibold text-foreground">
-                {item.title}
+                {reading.title}
               </h2>
               <p className="mt-1 min-h-10 text-sm leading-5 text-muted">
-                {item.description}
+                {reading.description}
               </p>
               <p className="mt-3 text-sm font-semibold text-foreground">
-                {item.price}
+                {reading.accessLabel}
               </p>
-            </article>
+            </Link>
           );
         })}
       </section>

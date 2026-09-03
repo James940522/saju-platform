@@ -1,1 +1,1 @@
-export { SajuInputForm } from "./ui/saju_input_form";
+export { CreateSajuProfileForm } from "./ui/create_saju_profile_form";

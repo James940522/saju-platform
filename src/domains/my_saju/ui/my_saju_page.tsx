@@ -5,6 +5,8 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { DefaultSajuProfilePanel } from "@/features/saju_profile_status";
+
 const accountItems = [
   { title: "내 사주 정보", description: "생년월일과 출생 시간", icon: UserRound },
   { title: "저장한 풀이", description: "구매하거나 저장한 해석", icon: ScrollText },
@@ -20,18 +22,7 @@ export function MySajuPage() {
         내 사주
       </h1>
 
-      <section className="mt-5 rounded-[24px] border border-paper-border bg-paper p-5">
-        <p className="text-sm font-medium text-muted">아직 등록된 사주가 없어요</p>
-        <h2 className="mt-2 text-xl font-semibold leading-snug text-foreground">
-          기본 정보를 입력하면 풀이와 운세를 더 자연스럽게 이어볼 수 있어요
-        </h2>
-        <button
-          className="mt-5 h-12 w-full rounded-full bg-foreground px-5 text-sm font-semibold text-background"
-          type="button"
-        >
-          내 사주 등록하기
-        </button>
-      </section>
+      <DefaultSajuProfilePanel />
 
       <section className="mt-5 space-y-3">
         {accountItems.map((item) => {

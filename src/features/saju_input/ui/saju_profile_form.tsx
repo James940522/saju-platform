@@ -2,14 +2,17 @@
 
 import {
   CalendarDays,
-  ChevronRight,
   CircleHelp,
   LockKeyhole,
   Sparkles,
   X,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
+import type {
+  SajuBirthDate,
+  SajuGender,
+  SajuProfileDraft,
+} from "@/entities/saju_profile";
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 101 }, (_, index) => currentYear - index);
@@ -29,7 +32,6 @@ type ChoiceCardProps = {
   name: string;
   onChange?: () => void;
   value: string;
-  defaultChecked?: boolean;
 };
 
 function ChoiceCard({
@@ -40,14 +42,12 @@ function ChoiceCard({
   name,
   onChange,
   value,
-  defaultChecked = false,
 }: ChoiceCardProps) {
   return (
     <label className="relative min-w-0 cursor-pointer">
       <input
         className="peer sr-only"
         checked={checked}
-        defaultChecked={checked === undefined ? defaultChecked : undefined}
         name={name}
         onChange={onChange}
         required
@@ -86,18 +86,133 @@ function FieldGroup({
   );
 }
 
-export function SajuInputForm() {
-  const router = useRouter();
+type SajuProfileFormProps = {
+  onSubmit: (profile: SajuProfileDraft) => void;
+  submitLabel?: string;
+};
+
+function getFormString(formData: FormData, key: string) {
+  const value = formData.get(key);
+
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getFormInteger(formData: FormData, key: string) {
+  const value = getFormString(formData, key);
+  const parsedValue = Number(value);
+
+  return value && Number.isInteger(parsedValue) ? parsedValue : undefined;
+}
+
+function isValidSolarBirthDate({ year, month, day }: SajuBirthDate) {
+  const date = new Date(Date.UTC(year, month - 1, day));
+  const today = new Date();
+  const todayUtc = Date.UTC(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day &&
+    date.getTime() <= todayUtc
+  );
+}
+
+function isValidLunarBirthDate({ month, day }: SajuBirthDate) {
+  return month >= 1 && month <= 12 && day >= 1 && day <= 30;
+}
+
+export function SajuProfileForm({
+  onSubmit,
+  submitLabel = "입력 완료",
+}: SajuProfileFormProps) {
   const [name, setName] = useState("");
   const [calendarType, setCalendarType] = useState<"solar" | "lunar">(
     "solar",
   );
   const [isLeapMonth, setIsLeapMonth] = useState(false);
   const [isUnknownBirthTime, setIsUnknownBirthTime] = useState(false);
+  const [formError, setFormError] = useState<string>();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    router.push("/readings/past-life-relationship");
+
+    const formData = new FormData(event.currentTarget);
+    const genderValue = getFormString(formData, "gender");
+    const birthYear = getFormInteger(formData, "birthYear");
+    const birthMonth = getFormInteger(formData, "birthMonth");
+    const birthDay = getFormInteger(formData, "birthDay");
+
+    if (!name.trim()) {
+      setFormError("이름 또는 별명을 입력해주세요.");
+      return;
+    }
+
+    if (
+      (genderValue !== "male" && genderValue !== "female") ||
+      birthYear === undefined ||
+      birthMonth === undefined ||
+      birthDay === undefined
+    ) {
+      setFormError("필수 정보를 모두 확인해주세요.");
+      return;
+    }
+
+    const birthDate = {
+      year: birthYear,
+      month: birthMonth,
+      day: birthDay,
+    };
+
+    const isValidDate =
+      calendarType === "solar"
+        ? isValidSolarBirthDate(birthDate)
+        : isValidLunarBirthDate(birthDate);
+
+    if (!isValidDate) {
+      setFormError("실제로 존재하는 생년월일을 선택해주세요.");
+      return;
+    }
+
+    const birthHour = getFormInteger(formData, "birthHour");
+    const birthMinute = getFormInteger(formData, "birthMinute");
+
+    if (
+      !isUnknownBirthTime &&
+      (birthHour === undefined || birthMinute === undefined)
+    ) {
+      setFormError("출생 시간을 선택하거나 모름에 체크해주세요.");
+      return;
+    }
+
+    const gender: SajuGender = genderValue;
+    const birthRegion = getFormString(formData, "birthRegion");
+    const birthTime = isUnknownBirthTime
+      ? { type: "unknown" as const }
+      : birthHour !== undefined && birthMinute !== undefined
+        ? { type: "known" as const, hour: birthHour, minute: birthMinute }
+        : undefined;
+
+    if (!birthTime) {
+      setFormError("출생 시간을 선택하거나 모름에 체크해주세요.");
+      return;
+    }
+
+    const profile: SajuProfileDraft = {
+      displayName: name.trim(),
+      gender,
+      calendarType,
+      isLeapMonth: calendarType === "lunar" && isLeapMonth,
+      birthDate,
+      birthTime,
+      ...(birthRegion ? { birthRegion } : {}),
+    };
+
+    setFormError(undefined);
+    onSubmit(profile);
   }
 
   return (
@@ -107,6 +222,7 @@ export function SajuInputForm() {
           <input
             className="h-13 w-full rounded-xl border border-border bg-surface px-4 pr-11 text-sm text-foreground outline-none placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent-soft"
             name="name"
+            maxLength={30}
             onChange={(event) => setName(event.target.value)}
             placeholder="이름 또는 별명을 입력해주세요"
             required
@@ -129,7 +245,6 @@ export function SajuInputForm() {
       <FieldGroup title="성별">
         <div className="grid grid-cols-2 gap-2.5">
           <ChoiceCard
-            defaultChecked
             icon={<span className="text-lg text-[#315b91]">♂</span>}
             label="남성"
             name="gender"
@@ -321,13 +436,12 @@ export function SajuInputForm() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-foreground">
-            개인정보는 안전하게 보호해요
+            현재 탭에만 임시 저장해요
           </p>
           <p className="mt-1 text-[10px] leading-4 text-muted">
-            입력 정보는 사주 풀이에만 사용되며 현재 화면에서는 저장하지 않아요.
+            입력 정보는 서버로 전송하지 않고 현재 탭의 데모 세션에만 저장해요.
           </p>
         </div>
-        <ChevronRight className="shrink-0 text-muted" size={18} />
       </div>
 
       <button
@@ -335,8 +449,13 @@ export function SajuInputForm() {
         type="submit"
       >
         <Sparkles size={19} />
-        풀이 시작하기
+        {submitLabel}
       </button>
+      {formError ? (
+        <p className="text-center text-xs font-semibold text-[#a24646]" role="alert">
+          {formError}
+        </p>
+      ) : null}
     </form>
   );
 }

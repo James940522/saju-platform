@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { BookOpenText, Home, Sparkles, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { routes } from "@/shared/config";
 
 type NavigationItem = {
   label: string;
@@ -12,10 +13,10 @@ type NavigationItem = {
 };
 
 const navigationItems: NavigationItem[] = [
-  { label: "홈", href: "/", icon: Home },
-  { label: "풀이", href: "/readings", icon: BookOpenText },
-  { label: "운세", href: "/fortune", icon: Sparkles },
-  { label: "내 사주", href: "/my-saju", icon: UserRound },
+  { label: "홈", href: routes.home, icon: Home },
+  { label: "풀이", href: routes.readings, icon: BookOpenText },
+  { label: "운세", href: routes.fortune, icon: Sparkles },
+  { label: "내 사주", href: routes.mySaju, icon: UserRound },
 ];
 
 function isActivePath(pathname: string, href: string) {
