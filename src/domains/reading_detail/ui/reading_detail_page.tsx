@@ -7,6 +7,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  getReadingAccessLabel,
   getReadingDefinition,
   getReadingSubjectLabel,
 } from "@/entities/reading";
@@ -60,7 +61,7 @@ export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
             {subjectLabel}
           </span>
           <span className="rounded-full border border-[#c99d47] px-3 py-1.5 text-[11px] font-semibold text-[#f1d58a]">
-            {reading.accessLabel}
+            {getReadingAccessLabel(reading)}
           </span>
         </div>
       </section>

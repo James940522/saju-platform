@@ -2,6 +2,7 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  getActiveReadingPrice,
   getReadingDefinition,
   getReadingSubjectLabel,
 } from "@/entities/reading";
@@ -53,7 +54,7 @@ export function ReadingStartPage({ readingCode }: ReadingStartPageProps) {
       </section>
 
       <ReadingStartGate
-        price={reading.price}
+        price={getActiveReadingPrice(reading)}
         readingCode={reading.code}
         readingTitle={reading.title}
         subjectRequirement={reading.subjectRequirement}

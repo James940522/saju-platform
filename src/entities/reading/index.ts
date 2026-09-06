@@ -1,9 +1,18 @@
 export {
+  getActiveReadingPrice,
+  getReadingAccessLabel,
   getReadingDefinition,
   getReadingSubjectLabel,
   readingCatalog,
-  type ReadingCode,
-  type ReadingDefinition,
-  type ReadingSubjectRequirement,
-  type ReadingTheme,
 } from "./model/reading_catalog";
+export type {
+  ReadingAvailability,
+  ReadingCode,
+  ReadingContent,
+  ReadingCurrency,
+  ReadingEntitlement,
+  ReadingPricing,
+  ReadingResultType,
+  ReadingSubjectRequirement,
+  ReadingTheme,
+} from "./model/reading_content";

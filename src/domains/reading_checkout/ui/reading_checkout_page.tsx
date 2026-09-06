@@ -1,7 +1,10 @@
 import { ArrowLeft, CreditCard, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReadingDefinition } from "@/entities/reading";
+import {
+  getActiveReadingPrice,
+  getReadingDefinition,
+} from "@/entities/reading";
 import { DemoCheckoutForm } from "@/features/demo_checkout";
 import { ReadingAccessGate } from "@/features/reading_access";
 import { routes } from "@/shared/config";
@@ -14,11 +17,12 @@ export function ReadingCheckoutPage({
   readingCode,
 }: ReadingCheckoutPageProps) {
   const reading = getReadingDefinition(readingCode);
+  const price = reading ? getActiveReadingPrice(reading) : undefined;
 
   if (
     !reading ||
     reading.code !== "past-life-relationship" ||
-    reading.price === undefined
+    price === undefined
   ) {
     notFound();
   }
@@ -57,7 +61,7 @@ export function ReadingCheckoutPage({
         </section>
 
         <DemoCheckoutForm
-          amount={reading.price}
+          amount={price}
           completionHref={routes.result("past-life-relationship-demo")}
           readingCode={reading.code}
           readingTitle={reading.title}

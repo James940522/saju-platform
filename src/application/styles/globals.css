@@ -18,6 +18,16 @@
   --hero: #172f52;
   --muted: #796f61;
   --border: #e5d7c0;
+  --element-wood: #3f8464;
+  --element-wood-soft: #eaf4ee;
+  --element-fire: #c6534d;
+  --element-fire-soft: #fbedec;
+  --element-earth: #a87f2d;
+  --element-earth-soft: #fbf3dc;
+  --element-metal: #747c87;
+  --element-metal-soft: #f3f4f6;
+  --element-water: #34475a;
+  --element-water-soft: #eaf0f5;
   --shadow-soft: 0 14px 36px rgba(76, 62, 40, 0.09);
   --font-sans-stack: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR",
     "Malgun Gothic", system-ui, sans-serif;
@@ -39,6 +49,16 @@
   --color-hero: var(--hero);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-element-wood: var(--element-wood);
+  --color-element-wood-soft: var(--element-wood-soft);
+  --color-element-fire: var(--element-fire);
+  --color-element-fire-soft: var(--element-fire-soft);
+  --color-element-earth: var(--element-earth);
+  --color-element-earth-soft: var(--element-earth-soft);
+  --color-element-metal: var(--element-metal);
+  --color-element-metal-soft: var(--element-metal-soft);
+  --color-element-water: var(--element-water);
+  --color-element-water-soft: var(--element-water-soft);
   --shadow-soft: var(--shadow-soft);
   --font-sans: var(--font-sans-stack);
   --font-display: var(--font-display-stack);

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 
 import { DefaultSajuProfilePanel } from "@/features/saju_profile_status";
+import { DefaultManseoryeokChart } from "@/widgets/manseoryeok_chart";
 
 const accountItems = [
   { title: "내 사주 정보", description: "생년월일과 출생 시간", icon: UserRound },
@@ -23,6 +24,8 @@ export function MySajuPage() {
       </h1>
 
       <DefaultSajuProfilePanel />
+
+      <DefaultManseoryeokChart />
 
       <section className="mt-5 space-y-3">
         {accountItems.map((item) => {

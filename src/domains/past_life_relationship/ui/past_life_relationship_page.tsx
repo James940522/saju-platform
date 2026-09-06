@@ -12,7 +12,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReadingDefinition } from "@/entities/reading";
+import {
+  getActiveReadingPrice,
+  getReadingDefinition,
+} from "@/entities/reading";
 import { ReadingAccessGate } from "@/features/reading_access";
 import { SaveResultButton } from "@/features/result_save";
 import { routes } from "@/shared/config";
@@ -305,15 +308,16 @@ function PastLifeRelationshipContent() {
 
 export function PastLifeRelationshipPage() {
   const reading = getReadingDefinition("past-life-relationship");
+  const price = reading ? getActiveReadingPrice(reading) : undefined;
 
-  if (!reading?.price) {
+  if (!reading || price === undefined) {
     notFound();
   }
 
   return (
     <ReadingAccessGate
       readingCode={reading.code}
-      requiredPaymentAmount={reading.price}
+      requiredPaymentAmount={price}
       requiresPartner
     >
       <PastLifeRelationshipContent />

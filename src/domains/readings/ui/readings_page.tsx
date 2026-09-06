@@ -8,7 +8,11 @@ import {
   ScrollText,
 } from "lucide-react";
 import Link from "next/link";
-import { readingCatalog, type ReadingTheme } from "@/entities/reading";
+import {
+  getReadingAccessLabel,
+  readingCatalog,
+  type ReadingTheme,
+} from "@/entities/reading";
 import { routes } from "@/shared/config";
 
 const themeIcons: Record<ReadingTheme, LucideIcon> = {
@@ -52,7 +56,7 @@ export function ReadingsPage() {
                 {reading.description}
               </p>
               <p className="mt-3 text-sm font-semibold text-foreground">
-                {reading.accessLabel}
+                {getReadingAccessLabel(reading)}
               </p>
             </Link>
           );
