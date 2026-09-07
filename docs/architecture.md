@@ -159,7 +159,37 @@ import { HomeDomain } from "@/domains/home";
 
 ## Data and API Strategy
 
-현재 단계에서는 실제 API client를 과도하게 만들지 않는다.
+Backend API 통신은 Axios 기반의 공통 계층을 `src/shared/api`에 둔다.
+
+```text
+src/shared/api
+  api_client.ts               Axios instance, 공통 요청 함수
+  config/api_config.ts        base URL, timeout
+  lib/api_client_error.ts     공통 오류 정규화
+  model/api_response.ts       { code, message, data } 계약
+
+src/entities/{entity}/api
+  *_dto.ts                    API 입출력 타입
+  *_api.ts                    endpoint 호출과 DTO -> domain 변환
+```
+
+호출 흐름은 다음과 같다.
+
+```text
+UI / feature
+  -> entity API
+  -> requestApi<TData>()
+  -> Axios instance
+  -> NestJS API
+```
+
+- UI에서 Axios instance를 직접 호출하지 않고 entity/feature의 API 함수를 사용한다.
+- 공통 성공 응답은 `{ code, message, data }`를 유지한다.
+- 공통 실패 응답과 네트워크 오류는 `ApiClientError`로 정규화한다.
+- Backend URL은 `NEXT_PUBLIC_API_BASE_URL`로 설정하며 secret을 넣지 않는다.
+- 인증 방식이 확정되면 공통 Axios request interceptor에 인증 정보를 연결한다.
+- API DTO와 frontend domain model은 분리하고 API 함수에서 변환한다.
+- OpenAPI 계약 생성이 도입되면 수동 DTO를 생성된 타입으로 교체한다.
 
 화면 구현 중 mock data가 필요하면 해당 화면 또는 feature에 가까운 위치에 작게 둔다. 이후 API 계약이 확정되면 다음을 분리해서 판단한다.
 

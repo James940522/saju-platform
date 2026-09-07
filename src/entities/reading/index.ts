@@ -5,6 +5,10 @@ export {
   getReadingSubjectLabel,
   readingCatalog,
 } from "./model/reading_catalog";
+export {
+  getReadingProduct,
+  getReadingProducts,
+} from "./api/reading_products_api";
 export type {
   ReadingAvailability,
   ReadingCode,
@@ -16,3 +20,7 @@ export type {
   ReadingSubjectRequirement,
   ReadingTheme,
 } from "./model/reading_content";
+export type {
+  GetReadingProductData,
+  GetReadingProductsData,
+} from "./api/reading_products_api";
