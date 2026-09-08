@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
-      method: "PUT",
+      method: "GET",
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${data.session.access_token}`,
@@ -39,8 +39,8 @@ export async function GET(request: Request) {
       cache: "no-store",
     });
 
-    if (!response.ok) {
-      throw new Error("User provisioning failed.");
+    if (!response.ok && response.status !== 404) {
+      throw new Error("User lookup failed.");
     }
   } catch {
     await supabase.auth.signOut();

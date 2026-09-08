@@ -39,7 +39,7 @@ export function RegistrationConsentDialog() {
     getAuthenticatedUserId,
     getAuthServerSnapshot,
   );
-  const { data: currentUserData } = useQuery({
+  const { data: currentUserData, isSuccess: hasLoadedCurrentUser } = useQuery({
     ...userQueries.current(),
     enabled: Boolean(userId),
   });
@@ -49,7 +49,11 @@ export function RegistrationConsentDialog() {
       queryClient.setQueryData(userKeys.current(), data);
     },
   });
-  const isOpen = currentUserData?.user.status === "pending_registration";
+  const isOpen =
+    Boolean(userId) &&
+    hasLoadedCurrentUser &&
+    (currentUserData === null ||
+      currentUserData.user.status === "pending_registration");
 
   useEffect(() => {
     if (!isOpen) {

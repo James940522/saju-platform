@@ -1,4 +1,4 @@
-import { requestApi } from "@/shared/api";
+import { isApiClientError, requestApi } from "@/shared/api";
 
 import type { User } from "../model/user";
 import type {
@@ -22,13 +22,25 @@ function toUser(user: UserDto): User {
   };
 }
 
-export async function getCurrentUser(): Promise<CurrentUserData> {
-  const response = await requestApi<CurrentUserDataDto>({
-    method: "GET",
-    url: "/v1/users/me",
-  });
+export async function getCurrentUser(): Promise<CurrentUserData | null> {
+  try {
+    const response = await requestApi<CurrentUserDataDto>({
+      method: "GET",
+      url: "/v1/users/me",
+    });
 
-  return { user: toUser(response.data.user) };
+    return { user: toUser(response.data.user) };
+  } catch (error) {
+    if (
+      isApiClientError(error) &&
+      error.code === 404 &&
+      error.data?.reason === "USER_NOT_FOUND"
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 export async function completeCurrentUserRegistration(): Promise<CurrentUserData> {
