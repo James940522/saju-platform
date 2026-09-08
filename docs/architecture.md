@@ -171,12 +171,17 @@ src/shared/api
 src/entities/{entity}/api
   *_dto.ts                    API 입출력 타입
   *_api.ts                    endpoint 호출과 DTO -> domain 변환
+  *_queries.ts                query key, queryOptions, cache 정책
+
+src/application/providers
+  query_provider.tsx          application 전역 QueryClientProvider
 ```
 
 호출 흐름은 다음과 같다.
 
 ```text
 UI / feature
+  -> TanStack Query queryOptions
   -> entity API
   -> requestApi<TData>()
   -> Axios instance
@@ -184,11 +189,15 @@ UI / feature
 ```
 
 - UI에서 Axios instance를 직접 호출하지 않고 entity/feature의 API 함수를 사용한다.
-- 공통 성공 응답은 `{ code, message, data }`를 유지한다.
+- 공통 성공 응답은 Axios 계층에서 `{ code, message, data }`를 검사하고, entity API는 변환된 domain data를 반환한다.
 - 공통 실패 응답과 네트워크 오류는 `ApiClientError`로 정규화한다.
 - Backend URL은 `NEXT_PUBLIC_API_BASE_URL`로 설정하며 secret을 넣지 않는다.
 - 인증 방식이 확정되면 공통 Axios request interceptor에 인증 정보를 연결한다.
 - API DTO와 frontend domain model은 분리하고 API 함수에서 변환한다.
+- query function이 제공받은 `AbortSignal`을 entity API와 Axios 요청까지 전달한다.
+- 서버에서 받은 비동기 데이터는 TanStack Query cache를 사용하고 Zustand나 Context에 중복 저장하지 않는다.
+- 같은 endpoint를 여러 화면에서 사용할 때 query key와 queryOptions를 entity에 두고 재사용한다.
+- `staleTime`, `gcTime`은 데이터 변경 주기에 맞춰 query별로 설정한다.
 - OpenAPI 계약 생성이 도입되면 수동 DTO를 생성된 타입으로 교체한다.
 
 화면 구현 중 mock data가 필요하면 해당 화면 또는 feature에 가까운 위치에 작게 둔다. 이후 API 계약이 확정되면 다음을 분리해서 판단한다.
@@ -207,6 +216,9 @@ Tailwind CSS를 기본 styling 방식으로 사용한다.
 모바일을 먼저 구현하고 tablet/desktop으로 확장한다. 디자인 reference가 제공되면 reference를 Visual Source of Truth로 취급한다.
 
 반복되는 spacing, typography, color, radius가 확인되기 전에는 design token을 성급하게 늘리지 않는다.
+
+전역 design token과 shadcn semantic token의 사용 규칙은
+[`docs/design_tokens.md`](./design_tokens.md)를 따른다.
 
 ## Dependency Policy
 

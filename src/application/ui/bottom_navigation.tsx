@@ -43,7 +43,7 @@ export function BottomNavigation() {
           return (
             <Link
               className={`flex min-h-14 flex-col items-center justify-center text-[11px] font-semibold leading-none ${
-                isActive ? "text-primary" : "text-muted"
+                isActive ? "text-primary" : "text-muted-foreground"
               }`}
               href={item.href}
               key={item.href}

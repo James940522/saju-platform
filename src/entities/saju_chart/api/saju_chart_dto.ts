@@ -1,4 +1,9 @@
 import type {
+  ApiErrorData,
+  ApiErrorResponse,
+  ApiResponse,
+} from "@/shared/api";
+import type {
   BirthInput,
   SajuChartSnapshot,
 } from "../model/saju_chart";
@@ -40,32 +45,25 @@ export type SajuChartDto = {
   snapshot: SajuChartSnapshot;
 };
 
-export type ApiResponseDto<TData> = {
-  data: TData;
-  meta: {
-    requestId: string;
-  };
-};
-
-export type CreateSajuProfileResponseDto = ApiResponseDto<{
+export type CreateSajuProfileResponseDto = ApiResponse<{
   profile: SajuProfileSummaryDto;
   chart: SajuChartDto;
 }>;
 
-export type GetSajuProfilesResponseDto = ApiResponseDto<{
+export type GetSajuProfilesResponseDto = ApiResponse<{
   profiles: readonly SajuProfileSummaryDto[];
 }>;
 
-export type GetSajuProfileResponseDto = ApiResponseDto<{
+export type GetSajuProfileResponseDto = ApiResponse<{
   profile: SajuProfileSummaryDto;
   chart: SajuChartDto | null;
 }>;
 
-export type GetSajuChartResponseDto = ApiResponseDto<{
+export type GetSajuChartResponseDto = ApiResponse<{
   chart: SajuChartDto;
 }>;
 
-export type SajuApiErrorCode =
+export type SajuApiErrorReason =
   | "VALIDATION_ERROR"
   | "INVALID_SOLAR_DATE"
   | "INVALID_LUNAR_DATE"
@@ -78,13 +76,12 @@ export type SajuApiErrorCode =
   | "CALCULATION_FAILED"
   | "RATE_LIMITED";
 
-export type SajuApiErrorResponseDto = {
-  error: {
-    code: SajuApiErrorCode;
-    message: string;
-    requestId: string;
-    fieldErrors?: Record<string, readonly string[]>;
-  };
+export type SajuApiErrorData = Omit<ApiErrorData, "reason"> & {
+  reason: SajuApiErrorReason;
+};
+
+export type SajuApiErrorResponseDto = Omit<ApiErrorResponse, "data"> & {
+  data: SajuApiErrorData | null;
 };
 
 export type CreateSajuReadingRequestDto =

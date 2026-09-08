@@ -1,3 +1,12 @@
+allowBuilds:
+  unrs-resolver: set this to true or false
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+minimumReleaseAgeExclude:
+  - '@supabase/auth-js@2.116.0'
+  - '@supabase/functions-js@2.116.0'
+  - '@supabase/postgrest-js@2.116.0'
+  - '@supabase/realtime-js@2.116.0'
+  - '@supabase/storage-js@2.116.0'
+  - '@supabase/supabase-js@2.116.0'

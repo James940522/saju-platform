@@ -48,7 +48,7 @@ export function CreateSajuProfileForm({
       <SajuProfileForm onSubmit={handleSubmit} submitLabel={submitLabel} />
       {storageError ? (
         <p
-          className="mt-3 text-center text-xs font-semibold text-[#a24646]"
+          className="mt-3 text-center text-xs font-semibold text-destructive"
           role="alert"
         >
           {storageError}

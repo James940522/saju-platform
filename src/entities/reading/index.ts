@@ -9,6 +9,10 @@ export {
   getReadingProduct,
   getReadingProducts,
 } from "./api/reading_products_api";
+export {
+  readingProductKeys,
+  readingProductQueries,
+} from "./api/reading_product_queries";
 export type {
   ReadingAvailability,
   ReadingCode,
@@ -16,6 +20,7 @@ export type {
   ReadingCurrency,
   ReadingEntitlement,
   ReadingPricing,
+  ReadingProductSummary,
   ReadingResultType,
   ReadingSubjectRequirement,
   ReadingTheme,

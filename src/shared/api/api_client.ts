@@ -10,6 +10,7 @@ import {
   isApiErrorResponse,
 } from "./lib/api_client_error";
 import type { ApiResponse } from "./model/api_response";
+import { getBrowserSupabaseClient } from "@/shared/supabase/browser_client";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -33,6 +34,10 @@ function getRequestId(response?: AxiosResponse<unknown>) {
 }
 
 function normalizeApiError(error: unknown) {
+  if (axios.isCancel(error)) {
+    return error;
+  }
+
   if (error instanceof ApiClientError) {
     return error;
   }
@@ -86,6 +91,22 @@ export const apiClient = axios.create({
   headers: {
     Accept: "application/json",
   },
+});
+
+apiClient.interceptors.request.use(async (config) => {
+  try {
+    const supabase = getBrowserSupabaseClient();
+    const { data } = await supabase.auth.getSession();
+    const accessToken = data.session?.access_token;
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+  } catch {
+    // Public API requests must remain available before Supabase is configured.
+  }
+
+  return config;
 });
 
 apiClient.interceptors.response.use(

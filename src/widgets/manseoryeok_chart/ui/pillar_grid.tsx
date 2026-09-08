@@ -7,7 +7,7 @@ type PillarGridProps = {
 
 function UnknownSymbolCell() {
   return (
-    <div className="mx-auto grid min-h-[78px] w-full max-w-[68px] place-items-center rounded-xl border border-dashed border-border bg-background px-1 text-center text-[10px] leading-4 text-muted">
+    <div className="mx-auto grid min-h-[78px] w-full max-w-[68px] place-items-center rounded-xl border border-dashed border-border bg-background px-1 text-center text-[10px] leading-4 text-muted-foreground">
       시간
       <br />
       미상
@@ -24,7 +24,7 @@ export function PillarGrid({ pillars }: PillarGridProps) {
         </caption>
         <thead className="bg-paper">
           <tr>
-            <th className="w-10 px-1 py-3 text-[9px] font-medium text-muted" scope="col">
+            <th className="w-10 px-1 py-3 text-[9px] font-medium text-muted-foreground" scope="col">
               구분
             </th>
             {pillars.map((pillar) => (
@@ -45,14 +45,14 @@ export function PillarGrid({ pillars }: PillarGridProps) {
         </thead>
         <tbody>
           <tr className="border-t border-paper-border">
-            <th className="px-1 py-2 text-[9px] font-medium leading-3 text-muted" scope="row">
+            <th className="px-1 py-2 text-[9px] font-medium leading-3 text-muted-foreground" scope="row">
               천간
               <br />
               십성
             </th>
             {pillars.map((pillar) => (
               <td
-                className="px-1 py-2 text-center text-[10px] font-semibold text-muted"
+                className="px-1 py-2 text-center text-[10px] font-semibold text-muted-foreground"
                 key={pillar.position}
               >
                 {pillar.stem?.tenGodLabel ?? "—"}
@@ -60,7 +60,7 @@ export function PillarGrid({ pillars }: PillarGridProps) {
             ))}
           </tr>
           <tr>
-            <th className="px-1 py-2 text-[9px] font-medium text-muted" scope="row">
+            <th className="px-1 py-2 text-[9px] font-medium text-muted-foreground" scope="row">
               천간
             </th>
             {pillars.map((pillar) => (
@@ -74,7 +74,7 @@ export function PillarGrid({ pillars }: PillarGridProps) {
             ))}
           </tr>
           <tr>
-            <th className="px-1 py-2 text-[9px] font-medium text-muted" scope="row">
+            <th className="px-1 py-2 text-[9px] font-medium text-muted-foreground" scope="row">
               지지
             </th>
             {pillars.map((pillar) => (
@@ -88,14 +88,14 @@ export function PillarGrid({ pillars }: PillarGridProps) {
             ))}
           </tr>
           <tr>
-            <th className="px-1 py-2 text-[9px] font-medium leading-3 text-muted" scope="row">
+            <th className="px-1 py-2 text-[9px] font-medium leading-3 text-muted-foreground" scope="row">
               지지
               <br />
               십성
             </th>
             {pillars.map((pillar) => (
               <td
-                className="px-1 py-2 text-center text-[10px] font-semibold text-muted"
+                className="px-1 py-2 text-center text-[10px] font-semibold text-muted-foreground"
                 key={pillar.position}
               >
                 {pillar.branch?.tenGodLabel ?? "—"}

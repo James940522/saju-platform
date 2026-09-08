@@ -24,12 +24,14 @@
 | 구분 | 위치 | 역할 |
 | --- | --- | --- |
 | Snapshot domain type | `src/entities/saju_chart/model/saju_chart.ts` | 서버가 반환하는 직렬화 가능한 만세력 결과 계약 |
-| Request/response DTO | `src/entities/saju_chart/api/saju_chart_dto.ts` | 프로필·차트·풀이 API의 외부 경계 |
+| Request/response DTO | `src/entities/saju_chart/api/saju_chart_dto.ts` | 프로필·차트·풀이 API의 임시 외부 경계. OpenAPI 타입 생성 후 생성 타입을 사용한다. |
 | Demo Snapshot | `src/entities/saju_chart/model/demo_saju_chart.ts` | 서버 연결 전 UI 검증 전용 고정 데이터 |
 | UI ViewModel | `src/widgets/manseoryeok_chart/model/manseoryeok_view_model.ts` | 화면 문구와 표시 순서로 변환된 타입 |
 | DTO → ViewModel mapper | `src/widgets/manseoryeok_chart/lib/to_manseoryeok_view_model.ts` | API 구조가 leaf UI에 새지 않도록 하는 변환 경계 |
 
-현재 저장소에는 백엔드가 없으므로 TypeScript 타입만 정의한다. 실제 API 연결 단계에서는 같은 구조를 shared contract의 Zod schema로 옮기고, 요청과 응답을 런타임에서도 검증해야 한다.
+Backend는 별도 저장소인 `saju-platform-server`에서 관리한다. Backend의 Zod schema와 OpenAPI 문서를 계약의 source of truth로 두고, Frontend는 생성 체계 도입 전까지만 entity의 `api` segment에 경계 타입을 둔다. Prisma 타입이나 Backend source file을 Frontend에서 직접 import하지 않는다.
+
+공통 성공 응답은 `{ code, message, data }`, 공통 오류 응답은 `{ code, message, data: { reason, fieldErrors? } | null }` 형식을 사용한다. `code`는 실제 HTTP status와 같고 요청 추적 ID는 body가 아닌 `x-request-id` header에서 읽는다.
 
 ## DB 모델에서 유지할 데이터
 

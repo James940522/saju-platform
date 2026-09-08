@@ -4,10 +4,10 @@ import { CalendarDays, Clock3, LogIn, MapPin, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import {
-  getDemoUserIdentifier,
-  getDemoUserServerSnapshot,
-  subscribeToDemoUser,
-} from "@/entities/demo_user";
+  getAuthenticatedUserId,
+  getAuthServerSnapshot,
+  subscribeToAuth,
+} from "@/entities/auth";
 import {
   getDemoSajuProfileSnapshot,
   parseDemoSajuProfileSnapshot,
@@ -25,10 +25,10 @@ function formatBirthTime(birthTime: SajuBirthTime) {
 }
 
 export function DefaultSajuProfilePanel() {
-  const userIdentifier = useSyncExternalStore<string | null | undefined>(
-    subscribeToDemoUser,
-    getDemoUserIdentifier,
-    getDemoUserServerSnapshot,
+  const userId = useSyncExternalStore<string | null | undefined>(
+    subscribeToAuth,
+    getAuthenticatedUserId,
+    getAuthServerSnapshot,
   );
   const profileSnapshot = useSyncExternalStore<string | null | undefined>(
     subscribeToDemoSajuProfiles,
@@ -36,23 +36,23 @@ export function DefaultSajuProfilePanel() {
     () => undefined,
   );
 
-  if (userIdentifier === undefined || profileSnapshot === undefined) {
+  if (userId === undefined || profileSnapshot === undefined) {
     return (
       <section
         aria-live="polite"
         className="mt-5 rounded-[24px] border border-paper-border bg-paper p-5"
       >
-        <p className="text-sm font-medium text-muted">
-          데모 계정과 사주 정보를 확인하고 있어요
+        <p className="text-sm font-medium text-muted-foreground">
+          로그인과 사주 정보를 확인하고 있어요
         </p>
       </section>
     );
   }
 
-  if (!userIdentifier) {
+  if (!userId) {
     return (
       <section className="mt-5 rounded-[24px] border border-paper-border bg-paper p-5">
-        <p className="text-sm font-medium text-muted">로그인이 필요해요</p>
+        <p className="text-sm font-medium text-muted-foreground">로그인이 필요해요</p>
         <h2 className="mt-2 text-xl font-semibold leading-snug text-foreground">
           로그인하면 내 사주 정보를 저장하고 풀이에 사용할 수 있어요
         </h2>
@@ -61,7 +61,7 @@ export function DefaultSajuProfilePanel() {
           href={routes.login({ target: "profile" })}
         >
           <LogIn size={17} />
-          데모 로그인하고 등록하기
+          로그인하고 등록하기
         </Link>
       </section>
     );
@@ -74,8 +74,8 @@ export function DefaultSajuProfilePanel() {
   if (!profile) {
     return (
       <section className="mt-5 rounded-[24px] border border-paper-border bg-paper p-5">
-        <p className="text-sm font-medium text-muted">
-          {userIdentifier}님, 아직 등록된 사주가 없어요
+        <p className="text-sm font-medium text-muted-foreground">
+          아직 등록된 사주가 없어요
         </p>
         <h2 className="mt-2 text-xl font-semibold leading-snug text-foreground">
           기본 정보를 입력하면 풀이와 운세를 바로 이어볼 수 있어요
@@ -101,31 +101,31 @@ export function DefaultSajuProfilePanel() {
 
       <dl className="mt-4 space-y-2 rounded-2xl border border-paper-border bg-surface p-4 text-sm">
         <div className="flex items-center gap-3">
-          <UserRound className="text-[#9a7c42]" size={18} />
-          <dt className="text-muted">성별</dt>
+          <UserRound className="text-brand-gold-muted" size={18} />
+          <dt className="text-muted-foreground">성별</dt>
           <dd className="ml-auto font-semibold text-foreground">
             {profile.gender === "male" ? "남성" : "여성"}
           </dd>
         </div>
         <div className="flex items-center gap-3">
-          <CalendarDays className="text-[#9a7c42]" size={18} />
-          <dt className="text-muted">생년월일</dt>
+          <CalendarDays className="text-brand-gold-muted" size={18} />
+          <dt className="text-muted-foreground">생년월일</dt>
           <dd className="ml-auto font-semibold text-foreground">
             {profile.birthDate.year}.{profile.birthDate.month}.
             {profile.birthDate.day} ({calendarLabel})
           </dd>
         </div>
         <div className="flex items-center gap-3">
-          <Clock3 className="text-[#9a7c42]" size={18} />
-          <dt className="text-muted">출생시간</dt>
+          <Clock3 className="text-brand-gold-muted" size={18} />
+          <dt className="text-muted-foreground">출생시간</dt>
           <dd className="ml-auto font-semibold text-foreground">
             {formatBirthTime(profile.birthTime)}
           </dd>
         </div>
         {profile.birthRegion ? (
           <div className="flex items-center gap-3">
-            <MapPin className="text-[#9a7c42]" size={18} />
-            <dt className="text-muted">출생지역</dt>
+            <MapPin className="text-brand-gold-muted" size={18} />
+            <dt className="text-muted-foreground">출생지역</dt>
             <dd className="ml-auto font-semibold text-foreground">
               {profile.birthRegion}
             </dd>
@@ -133,7 +133,7 @@ export function DefaultSajuProfilePanel() {
         ) : null}
       </dl>
 
-      <p className="mt-3 text-[11px] leading-5 text-muted">
+      <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
         실제 서버가 아닌 현재 탭의 데모 세션에만 저장되어 있어요.
       </p>
       <Link

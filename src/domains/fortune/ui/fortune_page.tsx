@@ -37,11 +37,11 @@ const fortuneItems: Array<{
 export function FortunePage() {
   return (
     <main className="min-h-dvh px-5 pt-[calc(22px+env(safe-area-inset-top))]">
-      <p className="text-sm font-medium text-muted">반복 방문 콘텐츠</p>
+      <p className="text-sm font-medium text-muted-foreground">반복 방문 콘텐츠</p>
       <h1 className="mt-1 text-[28px] font-semibold leading-tight text-foreground">
         운세
       </h1>
-      <p className="mt-3 text-sm leading-6 text-muted">
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">
         오늘, 이번 주, 이번 달처럼 시간이 지나며 바뀌는 운의 흐름을 확인하는
         메뉴입니다.
       </p>
@@ -63,7 +63,7 @@ export function FortunePage() {
                 <h2 className="text-base font-semibold text-foreground">
                   {item.title}
                 </h2>
-                <p className="mt-1 text-sm leading-5 text-muted">
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">
                   {item.description}
                 </p>
               </div>

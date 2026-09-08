@@ -3,10 +3,10 @@
 import { type ReactNode, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import {
-  getDemoUserIdentifier,
-  getDemoUserServerSnapshot,
-  subscribeToDemoUser,
-} from "@/entities/demo_user";
+  getAuthenticatedUserId,
+  getAuthServerSnapshot,
+  subscribeToAuth,
+} from "@/entities/auth";
 import {
   getDemoReadingPurchaseSnapshot,
   parseDemoReadingPurchaseSnapshot,
@@ -33,10 +33,10 @@ export function ReadingAccessGate({
   requiresPartner = false,
 }: ReadingAccessGateProps) {
   const router = useRouter();
-  const userIdentifier = useSyncExternalStore<string | null | undefined>(
-    subscribeToDemoUser,
-    getDemoUserIdentifier,
-    getDemoUserServerSnapshot,
+  const userId = useSyncExternalStore<string | null | undefined>(
+    subscribeToAuth,
+    getAuthenticatedUserId,
+    getAuthServerSnapshot,
   );
   const defaultProfileSnapshot = useSyncExternalStore<
     string | null | undefined
@@ -70,7 +70,7 @@ export function ReadingAccessGate({
       ? parseDemoReadingPurchaseSnapshot(purchaseSnapshot)
       : null;
   const isChecking =
-    userIdentifier === undefined ||
+    userId === undefined ||
     defaultProfileSnapshot === undefined ||
     partnerProfileSnapshot === undefined ||
     purchaseSnapshot === undefined;
@@ -81,7 +81,7 @@ export function ReadingAccessGate({
     (purchase?.readingCode === readingCode &&
       purchase.amount === requiredPaymentAmount);
   const canAccess =
-    Boolean(userIdentifier) && hasRequiredProfiles && hasRequiredPayment;
+    Boolean(userId) && hasRequiredProfiles && hasRequiredPayment;
 
   useEffect(() => {
     if (!isChecking && !canAccess) {
@@ -99,7 +99,7 @@ export function ReadingAccessGate({
           <p className="font-display text-lg font-bold text-foreground">
             풀이 이용 상태를 확인하고 있어요
           </p>
-          <p className="mt-2 text-xs leading-5 text-muted">
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
             필요한 단계가 남아 있으면 풀이 준비 화면으로 이동해요.
           </p>
         </section>

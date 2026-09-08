@@ -86,11 +86,11 @@ export function DemoCheckoutForm({
         <h2 className="mt-3 font-display text-xl font-bold text-foreground">
           데모 결제가 완료되어 있어요
         </h2>
-        <p className="mt-2 text-xs leading-5 text-muted">
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">
           실제 결제나 청구는 발생하지 않았어요.
         </p>
         <Link
-          className="mt-5 flex h-13 w-full items-center justify-center rounded-xl bg-primary font-display text-base font-bold text-[#f1cf78]"
+          className="mt-5 flex h-13 w-full items-center justify-center rounded-xl bg-primary font-display text-base font-bold text-brand-gold-on-dark"
           href={completionHref}
         >
           풀이 결과 보기
@@ -104,7 +104,7 @@ export function DemoCheckoutForm({
       <section className="rounded-[24px] border border-border bg-surface p-5">
         <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
           <div>
-            <p className="text-xs font-medium text-muted">결제할 풀이</p>
+            <p className="text-xs font-medium text-muted-foreground">결제할 풀이</p>
             <h2 className="mt-1 font-display text-lg font-bold text-foreground">
               {readingTitle}
             </h2>
@@ -130,7 +130,7 @@ export function DemoCheckoutForm({
               >
                 <input
                   checked={selectedMethod === method.value}
-                  className="size-4 accent-[#1c385e]"
+                  className="size-4 accent-primary"
                   name="paymentMethod"
                   onChange={() => setSelectedMethod(method.value)}
                   required
@@ -148,11 +148,11 @@ export function DemoCheckoutForm({
         </fieldset>
       </section>
 
-      <aside className="mt-3 flex items-start gap-3 rounded-2xl border border-accent/60 bg-accent-soft/25 px-4 py-4">
-        <LockKeyhole className="mt-0.5 shrink-0 text-[#9a7c42]" size={20} />
+      <aside className="mt-3 flex items-start gap-3 rounded-2xl border border-brand-gold/60 bg-brand-gold-soft/25 px-4 py-4">
+        <LockKeyhole className="mt-0.5 shrink-0 text-brand-gold-muted" size={20} />
         <div>
           <p className="text-xs font-bold text-foreground">UI 확인용 데모 결제예요</p>
-          <p className="mt-1 text-[11px] leading-5 text-muted">
+          <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
             외부 결제사로 정보를 보내지 않으며 실제 승인이나 청구는 발생하지
             않아요.
           </p>
@@ -160,7 +160,7 @@ export function DemoCheckoutForm({
       </aside>
 
       <button
-        className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-accent bg-primary font-display text-[18px] font-bold text-[#f1cf78]"
+        className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
         type="submit"
       >
         <CreditCard size={19} />
@@ -168,7 +168,7 @@ export function DemoCheckoutForm({
       </button>
 
       {formError ? (
-        <p className="mt-3 text-center text-xs font-semibold text-[#a24646]" role="alert">
+        <p className="mt-3 text-center text-xs font-semibold text-destructive" role="alert">
           {formError}
         </p>
       ) : null}

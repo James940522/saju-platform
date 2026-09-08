@@ -45,6 +45,17 @@ export type ReadingContent = {
   highlights: readonly string[];
 };
 
+export type ReadingProductSummary = Pick<
+  ReadingContent,
+  | "id"
+  | "code"
+  | "title"
+  | "description"
+  | "theme"
+  | "availability"
+  | "pricing"
+>;
+
 export type ReadingEntitlement =
   | { status: "accessible" }
   | { status: "purchase_required" }

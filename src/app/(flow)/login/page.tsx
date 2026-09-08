@@ -4,11 +4,12 @@ import { LoginPage } from "@/domains/login";
 
 export const metadata: Metadata = {
   title: "로그인 | 00사주",
-  description: "서비스 화면 흐름을 확인하기 위한 데모 로그인",
+  description: "카카오 또는 네이버 계정으로 로그인",
 };
 
 type LoginRouteProps = {
   searchParams: Promise<{
+    authError?: string | string[];
     intent?: string | string[];
     role?: string | string[];
     target?: string | string[];
@@ -20,14 +21,20 @@ function getSingleValue(value: string | string[] | undefined) {
 }
 
 export default async function Page({ searchParams }: LoginRouteProps) {
-  const { intent, role, target } = await searchParams;
+  const { authError, intent, role, target } = await searchParams;
 
-  if (Array.isArray(intent) || Array.isArray(role) || Array.isArray(target)) {
+  if (
+    Array.isArray(authError) ||
+    Array.isArray(intent) ||
+    Array.isArray(role) ||
+    Array.isArray(target)
+  ) {
     notFound();
   }
 
   return (
     <LoginPage
+      authError={getSingleValue(authError)}
       intent={getSingleValue(intent)}
       role={getSingleValue(role)}
       target={getSingleValue(target)}

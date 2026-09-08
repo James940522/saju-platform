@@ -65,7 +65,7 @@ const keyInterpretations = [
 function CharacterCircle({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="grid size-[76px] place-items-center rounded-full border border-accent bg-[#fffaf0] font-display text-[11px] text-[#8f7137] min-[390px]:size-[94px]">
+      <div className="grid size-[76px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[11px] text-brand-gold-foreground min-[390px]:size-[94px]">
         캐릭터
       </div>
       <span className="font-display text-sm font-bold text-[#f2d486]">
@@ -88,7 +88,7 @@ function PastLifeRelationshipContent() {
     <main className="min-h-dvh px-4 pb-[calc(22px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))]">
       <header className="flex items-center justify-between">
         <Link
-          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted"
+          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted-foreground"
           href={routes.readingStart("past-life-relationship")}
           aria-label="풀이 준비로 돌아가기"
         >
@@ -98,12 +98,12 @@ function PastLifeRelationshipContent() {
           <h1 className="font-display text-[24px] font-bold leading-none text-foreground">
             전생 관계도
           </h1>
-          <p className="mt-1.5 text-[11px] text-muted">
+          <p className="mt-1.5 text-[11px] text-muted-foreground">
             두 사람의 인연이 어디서 이어졌는지 살펴봐요
           </p>
         </div>
         <button
-          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted"
+          className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted-foreground"
           type="button"
           aria-label="전생 관계 풀이 도움말"
         >
@@ -112,7 +112,7 @@ function PastLifeRelationshipContent() {
       </header>
 
       <section className="mt-5 overflow-hidden rounded-[22px] bg-hero px-4 py-6 text-primary-foreground shadow-soft">
-        <p className="flex items-center justify-center gap-2 text-xs font-semibold text-[#e7bd5f]">
+        <p className="flex items-center justify-center gap-2 text-xs font-semibold text-hero-accent">
           <Sparkles size={14} />
           전생 인연 요약
           <Sparkles size={14} />
@@ -126,7 +126,7 @@ function PastLifeRelationshipContent() {
               <br />
               다시 이어진 인연
             </h2>
-            <p className="mt-3 text-[10px] leading-5 text-[#dce4ef] min-[390px]:text-[11px]">
+            <p className="mt-3 text-[10px] leading-5 text-hero-foreground min-[390px]:text-[11px]">
               두 사람의 사주에는
               <br />
               배움과 성장을 주고받는
@@ -138,16 +138,16 @@ function PastLifeRelationshipContent() {
         </div>
 
         <dl className="mt-6 grid grid-cols-3 gap-2">
-          <div className="rounded-xl border border-[#c99d47] px-2 py-2.5 text-center">
-            <dt className="text-[10px] text-[#e7bd5f]">전생 역할</dt>
+          <div className="rounded-xl border border-brand-gold px-2 py-2.5 text-center">
+            <dt className="text-[10px] text-hero-accent">전생 역할</dt>
             <dd className="mt-1 font-display text-sm font-bold">스승·제자</dd>
           </div>
-          <div className="rounded-xl border border-[#c99d47] px-2 py-2.5 text-center">
-            <dt className="text-[10px] text-[#e7bd5f]">현생 과제</dt>
+          <div className="rounded-xl border border-brand-gold px-2 py-2.5 text-center">
+            <dt className="text-[10px] text-hero-accent">현생 과제</dt>
             <dd className="mt-1 font-display text-sm font-bold">감정 표현</dd>
           </div>
-          <div className="rounded-xl border border-[#c99d47] px-2 py-2.5 text-center">
-            <dt className="text-[10px] text-[#e7bd5f]">인연 강도</dt>
+          <div className="rounded-xl border border-brand-gold px-2 py-2.5 text-center">
+            <dt className="text-[10px] text-hero-accent">인연 강도</dt>
             <dd className="mt-1 font-display text-sm font-bold">높음</dd>
           </div>
         </dl>
@@ -160,7 +160,7 @@ function PastLifeRelationshipContent() {
             <li className="relative min-w-0 px-1 text-center" key={item.step}>
               {index > 0 ? (
                 <span
-                  className="absolute right-1/2 top-[16px] h-px w-full border-t border-dashed border-accent/70"
+                  className="absolute right-1/2 top-[16px] h-px w-full border-t border-dashed border-brand-gold/70"
                   aria-hidden="true"
                 />
               ) : null}
@@ -170,7 +170,7 @@ function PastLifeRelationshipContent() {
               <h3 className="mt-3 font-display text-[13px] font-bold text-foreground">
                 {item.title}
               </h3>
-              <p className="mt-1.5 text-[10px] leading-[1.55] text-muted">
+              <p className="mt-1.5 text-[10px] leading-[1.55] text-muted-foreground">
                 {item.description}
               </p>
             </li>
@@ -184,13 +184,13 @@ function PastLifeRelationshipContent() {
           className="relative mt-3 overflow-hidden rounded-2xl border border-border bg-surface px-4 py-5"
           aria-label="나와 상대 사이의 보호, 배움, 끌림, 성장 관계"
         >
-          <div className="absolute left-[24%] right-[24%] top-1/2 h-px bg-accent/60" />
+          <div className="absolute left-[24%] right-[24%] top-1/2 h-px bg-brand-gold/60" />
           <div className="relative z-[1] flex items-center justify-between">
             <div className="flex flex-col items-center gap-2">
               <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-semibold text-primary-foreground">
                 나의 성향
               </span>
-              <div className="grid size-[72px] place-items-center rounded-full border border-accent bg-[#fffaf0] font-display text-[10px] text-[#8f7137]">
+              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[10px] text-brand-gold-foreground">
                 캐릭터
               </div>
             </div>
@@ -210,7 +210,7 @@ function PastLifeRelationshipContent() {
               <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-semibold text-primary-foreground">
                 상대의 성향
               </span>
-              <div className="grid size-[72px] place-items-center rounded-full border border-accent bg-[#fffaf0] font-display text-[10px] text-[#8f7137]">
+              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[10px] text-brand-gold-foreground">
                 캐릭터
               </div>
             </div>
@@ -237,16 +237,16 @@ function PastLifeRelationshipContent() {
                     <span className="block font-display text-[15px] font-bold text-foreground">
                       {item.title}
                     </span>
-                    <span className="mt-1 block text-[11px] leading-4 text-muted">
+                    <span className="mt-1 block text-[11px] leading-4 text-muted-foreground">
                       {item.summary}
                     </span>
                   </span>
                   <ChevronRight
-                    className="shrink-0 text-muted transition-transform group-open:rotate-90"
+                    className="shrink-0 text-muted-foreground transition-transform group-open:rotate-90"
                     size={19}
                   />
                 </summary>
-                <p className="ml-[52px] mt-3 border-t border-border pt-3 text-[11px] leading-5 text-muted">
+                <p className="ml-[52px] mt-3 border-t border-border pt-3 text-[11px] leading-5 text-muted-foreground">
                   {item.detail}
                 </p>
               </details>
@@ -255,13 +255,13 @@ function PastLifeRelationshipContent() {
         </div>
       </section>
 
-      <aside className="mt-3 flex items-start gap-3 rounded-2xl border border-accent/70 bg-accent-soft/30 px-4 py-4">
+      <aside className="mt-3 flex items-start gap-3 rounded-2xl border border-brand-gold/70 bg-brand-gold-soft/30 px-4 py-4">
         <SunMedium className="mt-0.5 shrink-0 text-[#b18129]" size={28} strokeWidth={1.5} />
         <div>
           <h2 className="font-display text-[16px] font-bold text-foreground">
             00사주의 한 줄 조언
           </h2>
-          <p className="mt-1 text-[11px] leading-5 text-muted">
+          <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
             이 인연은 답을 주는 관계가 아니라, 서로를 비추며 성장하게 하는
             관계예요.
           </p>
@@ -274,17 +274,17 @@ function PastLifeRelationshipContent() {
             <MoonStar size={20} />
             프리미엄 상세 관계 풀이
           </p>
-          <p className="mt-3 text-[11px] leading-5 text-[#dce4ef]">
+          <p className="mt-3 text-[11px] leading-5 text-hero-foreground">
             만난 시기, 갈등의 원인, 다시 이어질 흐름까지 더 깊게 확인해보세요.
           </p>
           <button
-            className="mt-4 h-10 rounded-full border border-accent bg-[#e1b957] px-5 text-xs font-bold text-[#283549]"
+            className="mt-4 h-10 rounded-full border border-brand-gold bg-[#e1b957] px-5 text-xs font-bold text-[#283549]"
             type="button"
           >
             상세 풀이 이어보기
           </button>
         </div>
-        <div className="grid size-[82px] place-items-center rounded-full border border-accent bg-[#fffaf0] font-display text-[11px] text-[#8f7137]">
+        <div className="grid size-[82px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[11px] text-brand-gold-foreground">
           캐릭터
         </div>
       </section>

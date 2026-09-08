@@ -24,21 +24,24 @@ type ReadingProductResultTypeDto =
   | "past_life_relationship"
   | "ranking";
 
-export type ReadingProductDto = {
+export type ReadingProductSummaryDto = {
   id: string;
   code: string;
   title: string;
   description: string;
   theme: ReadingProductThemeDto;
-  subjectRequirement: ReadingProductSubjectRequirementDto;
   availability: ReadingProductAvailabilityDto;
   pricing: ReadingProductPricingDto;
+};
+
+export type ReadingProductDto = ReadingProductSummaryDto & {
+  subjectRequirement: ReadingProductSubjectRequirementDto;
   resultType: ReadingProductResultTypeDto;
   highlights: string[];
 };
 
 export type GetReadingProductsDataDto = {
-  products: ReadingProductDto[];
+  products: ReadingProductSummaryDto[];
 };
 
 export type GetReadingProductDataDto = {

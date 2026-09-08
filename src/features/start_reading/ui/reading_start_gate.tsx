@@ -15,10 +15,10 @@ import type {
   ReadingSubjectRequirement,
 } from "@/entities/reading";
 import {
-  getDemoUserIdentifier,
-  getDemoUserServerSnapshot,
-  subscribeToDemoUser,
-} from "@/entities/demo_user";
+  getAuthenticatedUserId,
+  getAuthServerSnapshot,
+  subscribeToAuth,
+} from "@/entities/auth";
 import {
   getDemoReadingPurchaseSnapshot,
   parseDemoReadingPurchaseSnapshot,
@@ -56,7 +56,7 @@ function ProfileStatusCard({
         <CheckCircle2 size={21} strokeWidth={1.8} />
       </span>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-muted">{label}</p>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className="mt-1 truncate text-sm font-bold text-foreground">
           {profile.displayName} · {profile.birthDate.year}.
           {profile.birthDate.month}.{profile.birthDate.day}
@@ -69,7 +69,7 @@ function ProfileStatusCard({
 function PendingAction({ children }: { children: string }) {
   return (
     <button
-      className="mt-4 h-14 w-full cursor-not-allowed rounded-2xl border border-border bg-surface font-display text-[17px] font-bold text-muted"
+      className="mt-4 h-14 w-full cursor-not-allowed rounded-2xl border border-border bg-surface font-display text-[17px] font-bold text-muted-foreground"
       disabled
       type="button"
     >
@@ -85,10 +85,10 @@ export function ReadingStartGate({
   subjectRequirement,
 }: ReadingStartGateProps) {
   const router = useRouter();
-  const userIdentifier = useSyncExternalStore<string | null | undefined>(
-    subscribeToDemoUser,
-    getDemoUserIdentifier,
-    getDemoUserServerSnapshot,
+  const userId = useSyncExternalStore<string | null | undefined>(
+    subscribeToAuth,
+    getAuthenticatedUserId,
+    getAuthServerSnapshot,
   );
   const defaultProfileSnapshot = useSyncExternalStore<
     string | null | undefined
@@ -127,7 +127,7 @@ export function ReadingStartGate({
       ? parsedPurchase
       : null;
   const isChecking =
-    userIdentifier === undefined ||
+    userId === undefined ||
     defaultProfileSnapshot === undefined ||
     partnerProfileSnapshot === undefined ||
     purchaseSnapshot === undefined;
@@ -138,7 +138,7 @@ export function ReadingStartGate({
       return;
     }
 
-    if (!userIdentifier) {
+    if (!userId) {
       router.replace(routes.login({ intent: readingCode }));
       return;
     }
@@ -148,9 +148,9 @@ export function ReadingStartGate({
         routes.profileNew({ intent: readingCode, role: "default" }),
       );
     }
-  }, [hasDefaultProfile, isChecking, readingCode, router, userIdentifier]);
+  }, [hasDefaultProfile, isChecking, readingCode, router, userId]);
 
-  if (isChecking || !userIdentifier || !defaultProfile) {
+  if (isChecking || !userId || !defaultProfile) {
     return (
       <section
         aria-live="polite"
@@ -159,7 +159,7 @@ export function ReadingStartGate({
         <p className="font-display text-lg font-bold text-foreground">
           이용 조건을 확인하고 있어요
         </p>
-        <p className="mt-2 text-xs leading-5 text-muted">
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">
           로그인과 기본 사주 정보가 없으면 필요한 화면으로 자동 이동해요.
         </p>
       </section>
@@ -170,18 +170,18 @@ export function ReadingStartGate({
     return (
       <section className="mt-5">
         <ProfileStatusCard label="내 사주 저장 완료" profile={defaultProfile} />
-        <div className="mt-3 rounded-[22px] border border-dashed border-accent bg-accent-soft/20 px-5 py-6 text-center">
-          <span className="mx-auto grid size-12 place-items-center rounded-full bg-paper text-[#9a7c42]">
+        <div className="mt-3 rounded-[22px] border border-dashed border-brand-gold bg-brand-gold-soft/20 px-5 py-6 text-center">
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-paper text-brand-gold-muted">
             <UserPlus size={23} strokeWidth={1.7} />
           </span>
           <h2 className="mt-3 font-display text-lg font-bold text-foreground">
             상대 사주가 필요해요
           </h2>
-          <p className="mt-2 text-xs leading-5 text-muted">
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
             {readingTitle} 풀이는 두 사람의 생년월일 정보를 함께 사용해요.
           </p>
           <Link
-            className="mt-5 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-primary font-display text-base font-bold text-[#f1cf78]"
+            className="mt-5 flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-primary font-display text-base font-bold text-brand-gold-on-dark"
             href={routes.profileNew({
               intent: readingCode,
               role: "partner",
@@ -200,11 +200,11 @@ export function ReadingStartGate({
       <section className="mt-5">
         <ProfileStatusCard label="내 사주 저장 완료" profile={defaultProfile} />
         <div className="mt-3 rounded-[22px] border border-paper-border bg-paper px-5 py-6 text-center">
-          <UsersRound className="mx-auto text-[#9a7c42]" size={31} strokeWidth={1.6} />
+          <UsersRound className="mx-auto text-brand-gold-muted" size={31} strokeWidth={1.6} />
           <h2 className="mt-3 font-display text-lg font-bold text-foreground">
             함께 볼 사람을 선택할 차례예요
           </h2>
-          <p className="mt-2 text-xs leading-5 text-muted">
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
             이 풀이는 {subjectRequirement.min}명부터 {subjectRequirement.max}명까지
             참여할 수 있어요.
           </p>
@@ -225,7 +225,7 @@ export function ReadingStartGate({
 
       {price !== undefined && !purchase ? (
         <div className="mt-4 rounded-[22px] border border-paper-border bg-paper px-5 py-5 text-center">
-          <CreditCard className="mx-auto text-[#9a7c42]" size={30} strokeWidth={1.6} />
+          <CreditCard className="mx-auto text-brand-gold-muted" size={30} strokeWidth={1.6} />
           <h2 className="mt-3 font-display text-lg font-bold text-foreground">
             결제 후 전체 풀이를 볼 수 있어요
           </h2>
@@ -233,7 +233,7 @@ export function ReadingStartGate({
             {formatKoreanWon(price)} · 데모 결제
           </p>
           <Link
-            className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-accent bg-primary font-display text-[18px] font-bold text-[#f1cf78]"
+            className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
             href={routes.readingCheckout(readingCode)}
           >
             간편결제로 계속하기
@@ -242,7 +242,7 @@ export function ReadingStartGate({
         </div>
       ) : readingCode === "past-life-relationship" && purchase ? (
         <Link
-          className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-accent bg-primary font-display text-[18px] font-bold text-[#f1cf78]"
+          className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
           href={routes.result("past-life-relationship-demo")}
         >
           결제한 풀이 결과 보기

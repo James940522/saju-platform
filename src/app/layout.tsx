@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { AppShell } from "@/application";
+import { AppShell, QueryProvider } from "@/application";
+import { RegistrationConsentDialog } from "@/features/complete_registration";
 import "@/application/styles/globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko">
       <body>
-        <AppShell>{children}</AppShell>
+        <AppShell>
+          <QueryProvider>
+            {children}
+            <RegistrationConsentDialog />
+          </QueryProvider>
+        </AppShell>
       </body>
     </html>
   );

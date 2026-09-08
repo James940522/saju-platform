@@ -18,7 +18,7 @@ const accountItems = [
 export function MySajuPage() {
   return (
     <main className="min-h-dvh px-5 pt-[calc(22px+env(safe-area-inset-top))]">
-      <p className="text-sm font-medium text-muted">나와 내 기록</p>
+      <p className="text-sm font-medium text-muted-foreground">나와 내 기록</p>
       <h1 className="mt-1 text-[28px] font-semibold leading-tight text-foreground">
         내 사주
       </h1>
@@ -43,7 +43,7 @@ export function MySajuPage() {
                 <h2 className="text-base font-semibold text-foreground">
                   {item.title}
                 </h2>
-                <p className="mt-1 text-sm leading-5 text-muted">
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">
                   {item.description}
                 </p>
               </div>

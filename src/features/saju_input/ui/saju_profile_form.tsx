@@ -22,7 +22,7 @@ const hours = Array.from({ length: 24 }, (_, index) => index);
 const minutes = Array.from({ length: 12 }, (_, index) => index * 5);
 
 const selectClassName =
-  "h-12 min-w-0 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:bg-paper disabled:text-muted";
+  "h-12 min-w-0 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold-soft disabled:bg-paper disabled:text-muted-foreground";
 
 type ChoiceCardProps = {
   checked?: boolean;
@@ -54,12 +54,12 @@ function ChoiceCard({
         type="radio"
         value={value}
       />
-      <span className="flex min-h-14 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-foreground peer-checked:border-accent peer-checked:bg-accent-soft/35 peer-focus-visible:ring-2 peer-focus-visible:ring-accent">
+      <span className="flex min-h-14 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-foreground peer-checked:border-brand-gold peer-checked:bg-brand-gold-soft/35 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-gold">
         {icon}
         <span className="min-w-0">
           <span className="block">{label}</span>
           {description ? (
-            <span className="mt-0.5 block text-[10px] font-normal text-muted">
+            <span className="mt-0.5 block text-[10px] font-normal text-muted-foreground">
               {description}
             </span>
           ) : null}
@@ -220,7 +220,7 @@ export function SajuProfileForm({
       <FieldGroup title="이름">
         <div className="relative">
           <input
-            className="h-13 w-full rounded-xl border border-border bg-surface px-4 pr-11 text-sm text-foreground outline-none placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            className="h-13 w-full rounded-xl border border-border bg-surface px-4 pr-11 text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-brand-gold focus:ring-2 focus:ring-brand-gold-soft"
             name="name"
             maxLength={30}
             onChange={(event) => setName(event.target.value)}
@@ -231,7 +231,7 @@ export function SajuProfileForm({
           />
           {name ? (
             <button
-              className="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-muted"
+              className="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-muted-foreground"
               onClick={() => setName("")}
               type="button"
               aria-label="이름 지우기"
@@ -276,7 +276,7 @@ export function SajuProfileForm({
           <ChoiceCard
             checked={calendarType === "lunar"}
             description="음력 · 윤달 포함"
-            icon={<CircleHelp className="text-[#9a7c42]" size={20} />}
+            icon={<CircleHelp className="text-brand-gold-muted" size={20} />}
             label="음력"
             name="calendar"
             onChange={() => setCalendarType("lunar")}
@@ -287,12 +287,12 @@ export function SajuProfileForm({
           className={`mt-3 flex items-center gap-2 text-xs ${
             calendarType === "lunar"
               ? "cursor-pointer text-foreground"
-              : "cursor-not-allowed text-muted/60"
+              : "cursor-not-allowed text-muted-foreground/60"
           }`}
         >
           <input
             checked={isLeapMonth}
-            className="size-4 accent-[#1c385e]"
+            className="size-4 accent-primary"
             disabled={calendarType !== "lunar"}
             name="isLeapMonth"
             onChange={(event) => setIsLeapMonth(event.target.checked)}
@@ -395,14 +395,14 @@ export function SajuProfileForm({
         <label className="mt-3 flex cursor-pointer items-start gap-2 text-xs text-foreground">
           <input
             checked={isUnknownBirthTime}
-            className="mt-0.5 size-4 accent-[#1c385e]"
+            className="mt-0.5 size-4 accent-primary"
             name="isUnknownBirthTime"
             onChange={(event) => setIsUnknownBirthTime(event.target.checked)}
             type="checkbox"
           />
           <span>
             <span className="font-semibold">출생 시간을 모르겠어요</span>
-            <span className="mt-1 block text-[10px] text-muted">
+            <span className="mt-1 block text-[10px] text-muted-foreground">
               모를 경우 비워두고 진행할 수 있어요
             </span>
           </span>
@@ -425,34 +425,34 @@ export function SajuProfileForm({
             ),
           )}
         </select>
-        <p className="mt-2 text-[10px] leading-4 text-muted">
+        <p className="mt-2 text-[10px] leading-4 text-muted-foreground">
           보다 정확한 표준시 계산을 위해 선택을 권장해요.
         </p>
       </FieldGroup>
 
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
-        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-paper text-[#8f7137]">
+        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-paper text-brand-gold-foreground">
           <LockKeyhole size={19} strokeWidth={1.7} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-foreground">
             현재 탭에만 임시 저장해요
           </p>
-          <p className="mt-1 text-[10px] leading-4 text-muted">
+          <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
             입력 정보는 서버로 전송하지 않고 현재 탭의 데모 세션에만 저장해요.
           </p>
         </div>
       </div>
 
       <button
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-accent bg-primary font-display text-[19px] font-bold text-[#f1cf78]"
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[19px] font-bold text-brand-gold-on-dark"
         type="submit"
       >
         <Sparkles size={19} />
         {submitLabel}
       </button>
       {formError ? (
-        <p className="text-center text-xs font-semibold text-[#a24646]" role="alert">
+        <p className="text-center text-xs font-semibold text-destructive" role="alert">
           {formError}
         </p>
       ) : null}

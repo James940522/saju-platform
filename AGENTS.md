@@ -193,6 +193,9 @@ Slice 내부에서는 필요한 경우 다음 segment 이름을 우선 사용한
 - TypeScript
 - App Router
 - Tailwind CSS
+- Axios
+- TanStack Query
+- shadcn/ui
 - pnpm
 
 현재 단계에서 필요하지 않은 dependency를 추가하지 않는다. 특히 필요성이 명확하지 않은 상태에서 다음을 임의로 설치하지 않는다.

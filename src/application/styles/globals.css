@@ -1,8 +1,13 @@
 @import "tailwindcss";
 @import "@fontsource/gowun-batang/400.css";
 @import "@fontsource/gowun-batang/700.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Application foundation */
   --app-max-width: 430px;
   --app-outer: #f3ecdf;
   --background: #fbf7ee;
@@ -10,14 +15,41 @@
   --surface: #fffdf8;
   --paper: #f8f1e4;
   --paper-border: #dfcfb3;
+
+  /* Brand palette */
   --primary: #1c385e;
   --primary-soft: #eaf0f7;
-  --primary-foreground: #fffaf0;
-  --accent: #c99d47;
-  --accent-soft: #f4e4b7;
+  --brand-cream: #fffaf0;
+  --primary-foreground: var(--brand-cream);
+  --brand-gold: #c99d47;
+  --brand-gold-soft: #f4e4b7;
+  --brand-gold-foreground: #8f7137;
+  --brand-gold-muted: #9a7c42;
+  --brand-gold-on-dark: #f1cf78;
   --hero: #172f52;
-  --muted: #796f61;
+  --hero-foreground: #dce4ef;
+  --hero-accent: #e7bd5f;
+
+  /* shadcn semantic tokens */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --secondary: var(--paper);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--paper);
+  --muted-foreground: #796f61;
+  --accent: var(--brand-gold-soft);
+  --accent-foreground: #6b4f17;
+  --destructive: #a24646;
+  --destructive-foreground: var(--brand-cream);
+  --destructive-soft: #f9e8e3;
   --border: #e5d7c0;
+  --input: var(--paper-border);
+  --ring: var(--brand-gold);
+  --radius: 0.625rem;
+
+  /* Five elements */
   --element-wood: #3f8464;
   --element-wood-soft: #eaf4ee;
   --element-fire: #c6534d;
@@ -29,6 +61,8 @@
   --element-water: #34475a;
   --element-water-soft: #eaf0f5;
   --shadow-soft: 0 14px 36px rgba(76, 62, 40, 0.09);
+
+  /* Typography */
   --font-sans-stack: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR",
     "Malgun Gothic", system-ui, sans-serif;
   --font-display-stack: "Gowun Batang", "AppleMyungjo", "Batang", serif;
@@ -44,10 +78,17 @@
   --color-primary: var(--primary);
   --color-primary-soft: var(--primary-soft);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-soft: var(--brand-gold-soft);
+  --color-brand-gold-foreground: var(--brand-gold-foreground);
+  --color-brand-gold-muted: var(--brand-gold-muted);
+  --color-brand-gold-on-dark: var(--brand-gold-on-dark);
   --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
   --color-hero: var(--hero);
-  --color-muted: var(--muted);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-hero-accent: var(--hero-accent);
   --color-border: var(--border);
   --color-element-wood: var(--element-wood);
   --color-element-wood-soft: var(--element-wood-soft);
@@ -62,6 +103,26 @@
   --shadow-soft: var(--shadow-soft);
   --font-sans: var(--font-sans-stack);
   --font-display: var(--font-display-stack);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 * {
@@ -86,4 +147,13 @@ body {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

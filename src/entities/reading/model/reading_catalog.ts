@@ -23,7 +23,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "지금 내 연애운이 어떤 방향으로 흐르는지 살펴봐요.",
     theme: "relationship",
     subjectRequirement: { type: "single" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "pending", expectedAmount: 990, currency: "KRW" },
     resultType: "standard",
     highlights: ["현재 연애 흐름", "좋은 인연의 시기", "관계에서 주의할 점"],
@@ -35,7 +35,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "두 사람의 성향과 관계가 어떻게 맞물리는지 확인해요.",
     theme: "relationship",
     subjectRequirement: { type: "pair" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
     highlights: ["성격과 감정 궁합", "대화와 갈등 방식", "오래 이어지는 관계의 조건"],
@@ -59,7 +59,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "멀어진 관계가 다시 이어질 흐름이 있는지 살펴봐요.",
     theme: "relationship",
     subjectRequirement: { type: "pair" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
     highlights: ["현재 관계의 흐름", "다시 연락하기 좋은 시기", "반복하지 않아야 할 문제"],
@@ -119,7 +119,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "올해 돈의 흐름과 재물을 지키기 좋은 시기를 확인해요.",
     theme: "wealth",
     subjectRequirement: { type: "single" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "paid", amount: 990, currency: "KRW" },
     resultType: "standard",
     highlights: ["올해 재물 흐름", "돈이 들어오는 시기", "주의해야 할 선택"],
@@ -131,7 +131,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "지금 움직여도 좋을지, 일의 변화가 오는 시기를 살펴봐요.",
     theme: "career",
     subjectRequirement: { type: "single" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "paid", amount: 990, currency: "KRW" },
     resultType: "standard",
     highlights: ["현재 직업 흐름", "이동하기 좋은 시기", "변화에서 주의할 점"],
@@ -143,7 +143,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "10년 단위로 바뀌는 인생의 큰 흐름을 살펴봐요.",
     theme: "self",
     subjectRequirement: { type: "single" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
     highlights: ["대운의 전환점", "시기별 핵심 주제", "앞으로 준비할 방향"],
@@ -155,7 +155,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     description: "지금 마음에 걸리는 질문을 사주의 흐름과 함께 살펴봐요.",
     theme: "question",
     subjectRequirement: { type: "single" },
-    availability: "coming_soon",
+    availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
     highlights: ["질문에 대한 핵심 답변", "선택할 때 볼 기준", "지금 실천할 조언"],
@@ -163,7 +163,10 @@ export const readingCatalog: readonly ReadingContent[] = [
 ] as const;
 
 export function getReadingDefinition(readingCode: string) {
-  return readingCatalog.find((reading) => reading.code === readingCode);
+  return readingCatalog.find(
+    (reading) =>
+      reading.code === readingCode && reading.availability !== "hidden",
+  );
 }
 
 function formatKoreanWon(amount: number) {

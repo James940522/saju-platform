@@ -20,7 +20,7 @@ export function ElementDistribution({
             목·화·토·금·수
           </h3>
         </div>
-        <p className="text-[10px] text-muted">{distribution.methodLabel}</p>
+        <p className="text-[10px] text-muted-foreground">{distribution.methodLabel}</p>
       </div>
 
       <dl className="mt-4 space-y-3">
@@ -52,7 +52,7 @@ export function ElementDistribution({
         })}
       </dl>
 
-      <p className="mt-4 text-[11px] leading-5 text-muted">
+      <p className="mt-4 text-[11px] leading-5 text-muted-foreground">
         오행 구성은 원국의 글자 수를 센 값이며, 오행의 강약이나 좋고 나쁨을
         뜻하지 않아요.
       </p>

@@ -1,13 +1,13 @@
 export { DEMO_SAJU_CHART_SNAPSHOT } from "./model/demo_saju_chart";
 export type {
-  ApiResponseDto,
   CreateSajuProfileRequestDto,
   CreateSajuProfileResponseDto,
   CreateSajuReadingRequestDto,
   GetSajuChartResponseDto,
   GetSajuProfileResponseDto,
   GetSajuProfilesResponseDto,
-  SajuApiErrorCode,
+  SajuApiErrorData,
+  SajuApiErrorReason,
   SajuApiErrorResponseDto,
   SajuChartDto,
   SajuProfileKind,
