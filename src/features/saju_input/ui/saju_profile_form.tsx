@@ -12,14 +12,28 @@ import type {
   SajuBirthDate,
   SajuGender,
   SajuProfileDraft,
+  SajuRelationType,
 } from "@/entities/saju_profile";
 
 const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 101 }, (_, index) => currentYear - index);
+const years = Array.from(
+  { length: currentYear - 1799 },
+  (_, index) => currentYear - index,
+);
 const months = Array.from({ length: 12 }, (_, index) => index + 1);
 const days = Array.from({ length: 31 }, (_, index) => index + 1);
 const hours = Array.from({ length: 24 }, (_, index) => index);
-const minutes = Array.from({ length: 12 }, (_, index) => index * 5);
+const minutes = Array.from({ length: 60 }, (_, index) => index);
+const relationOptions: ReadonlyArray<{
+  label: string;
+  value: SajuRelationType;
+}> = [
+  { label: "본인", value: "self" },
+  { label: "가족", value: "family" },
+  { label: "친구", value: "friend" },
+  { label: "연인·배우자", value: "partner" },
+  { label: "기타", value: "other" },
+];
 
 const selectClassName =
   "h-12 min-w-0 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold-soft disabled:bg-paper disabled:text-muted-foreground";
@@ -87,7 +101,13 @@ function FieldGroup({
 }
 
 type SajuProfileFormProps = {
+  fixedRelationType?: SajuRelationType;
+  initialProfile?: SajuProfileDraft;
+  isSubmitting?: boolean;
+  noticeDescription?: string;
+  noticeTitle?: string;
   onSubmit: (profile: SajuProfileDraft) => void;
+  showRelationField?: boolean;
   submitLabel?: string;
 };
 
@@ -126,22 +146,37 @@ function isValidLunarBirthDate({ month, day }: SajuBirthDate) {
 }
 
 export function SajuProfileForm({
+  fixedRelationType,
+  initialProfile,
+  isSubmitting = false,
+  noticeDescription = "입력 정보는 로그인한 계정의 만세력 계산과 보관에 사용해요.",
+  noticeTitle = "안전하게 저장해요",
   onSubmit,
+  showRelationField = true,
   submitLabel = "입력 완료",
 }: SajuProfileFormProps) {
-  const [name, setName] = useState("");
-  const [calendarType, setCalendarType] = useState<"solar" | "lunar">(
-    "solar",
+  const [name, setName] = useState(initialProfile?.displayName ?? "");
+  const [relationType, setRelationType] = useState<SajuRelationType>(
+    fixedRelationType ?? initialProfile?.relationType ?? "self",
   );
-  const [isLeapMonth, setIsLeapMonth] = useState(false);
-  const [isUnknownBirthTime, setIsUnknownBirthTime] = useState(false);
+  const [gender, setGender] = useState<SajuGender | undefined>(
+    initialProfile?.gender,
+  );
+  const [calendarType, setCalendarType] = useState<"solar" | "lunar">(
+    initialProfile?.calendarType ?? "solar",
+  );
+  const [isLeapMonth, setIsLeapMonth] = useState(
+    initialProfile?.isLeapMonth ?? false,
+  );
+  const [isUnknownBirthTime, setIsUnknownBirthTime] = useState(
+    initialProfile?.birthTime.type === "unknown",
+  );
   const [formError, setFormError] = useState<string>();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const genderValue = getFormString(formData, "gender");
     const birthYear = getFormInteger(formData, "birthYear");
     const birthMonth = getFormInteger(formData, "birthMonth");
     const birthDay = getFormInteger(formData, "birthDay");
@@ -152,7 +187,7 @@ export function SajuProfileForm({
     }
 
     if (
-      (genderValue !== "male" && genderValue !== "female") ||
+      gender === undefined ||
       birthYear === undefined ||
       birthMonth === undefined ||
       birthDay === undefined
@@ -188,8 +223,6 @@ export function SajuProfileForm({
       return;
     }
 
-    const gender: SajuGender = genderValue;
-    const birthRegion = getFormString(formData, "birthRegion");
     const birthTime = isUnknownBirthTime
       ? { type: "unknown" as const }
       : birthHour !== undefined && birthMinute !== undefined
@@ -203,12 +236,12 @@ export function SajuProfileForm({
 
     const profile: SajuProfileDraft = {
       displayName: name.trim(),
+      relationType,
       gender,
       calendarType,
       isLeapMonth: calendarType === "lunar" && isLeapMonth,
       birthDate,
       birthTime,
-      ...(birthRegion ? { birthRegion } : {}),
     };
 
     setFormError(undefined);
@@ -217,6 +250,38 @@ export function SajuProfileForm({
 
   return (
     <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
+      {showRelationField ? (
+        <FieldGroup title="누구의 사주인가요?">
+          <select
+            aria-label="사주 대상과의 관계"
+            className={selectClassName}
+            disabled={Boolean(fixedRelationType)}
+            name="relationType"
+            onChange={(event) => {
+              const selectedRelation = relationOptions.find(
+                (option) => option.value === event.target.value,
+              );
+
+              if (selectedRelation) {
+                setRelationType(selectedRelation.value);
+              }
+            }}
+            value={relationType}
+          >
+            {relationOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {fixedRelationType ? (
+            <p className="mt-2 text-[10px] leading-4 text-muted-foreground">
+              현재 풀이에 필요한 대상으로 자동 지정했어요.
+            </p>
+          ) : null}
+        </FieldGroup>
+      ) : null}
+
       <FieldGroup title="이름">
         <div className="relative">
           <input
@@ -245,15 +310,19 @@ export function SajuProfileForm({
       <FieldGroup title="성별">
         <div className="grid grid-cols-2 gap-2.5">
           <ChoiceCard
+            checked={gender === "male"}
             icon={<span className="text-lg text-[#315b91]">♂</span>}
             label="남성"
             name="gender"
+            onChange={() => setGender("male")}
             value="male"
           />
           <ChoiceCard
+            checked={gender === "female"}
             icon={<span className="text-lg text-[#c25178]">♀</span>}
             label="여성"
             name="gender"
+            onChange={() => setGender("female")}
             value="female"
           />
         </div>
@@ -307,7 +376,7 @@ export function SajuProfileForm({
           <select
             aria-label="출생 연도"
             className={selectClassName}
-            defaultValue=""
+            defaultValue={initialProfile?.birthDate.year ?? ""}
             name="birthYear"
             required
           >
@@ -323,7 +392,7 @@ export function SajuProfileForm({
           <select
             aria-label="출생 월"
             className={selectClassName}
-            defaultValue=""
+            defaultValue={initialProfile?.birthDate.month ?? ""}
             name="birthMonth"
             required
           >
@@ -339,7 +408,7 @@ export function SajuProfileForm({
           <select
             aria-label="출생 일"
             className={selectClassName}
-            defaultValue=""
+            defaultValue={initialProfile?.birthDate.day ?? ""}
             name="birthDay"
             required
           >
@@ -360,7 +429,11 @@ export function SajuProfileForm({
           <select
             aria-label="출생 시"
             className={selectClassName}
-            defaultValue=""
+            defaultValue={
+              initialProfile?.birthTime.type === "known"
+                ? initialProfile.birthTime.hour
+                : ""
+            }
             disabled={isUnknownBirthTime}
             name="birthHour"
             required={!isUnknownBirthTime}
@@ -377,7 +450,11 @@ export function SajuProfileForm({
           <select
             aria-label="출생 분"
             className={selectClassName}
-            defaultValue=""
+            defaultValue={
+              initialProfile?.birthTime.type === "known"
+                ? initialProfile.birthTime.minute
+                : ""
+            }
             disabled={isUnknownBirthTime}
             name="birthMinute"
             required={!isUnknownBirthTime}
@@ -409,47 +486,25 @@ export function SajuProfileForm({
         </label>
       </FieldGroup>
 
-      <FieldGroup title="출생 지역 (선택)">
-        <select
-          aria-label="출생 지역"
-          className={selectClassName}
-          defaultValue=""
-          name="birthRegion"
-        >
-          <option value="">도시 또는 지역을 선택해주세요</option>
-          {["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "제주", "기타"].map(
-            (region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ),
-          )}
-        </select>
-        <p className="mt-2 text-[10px] leading-4 text-muted-foreground">
-          보다 정확한 표준시 계산을 위해 선택을 권장해요.
-        </p>
-      </FieldGroup>
-
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
         <div className="grid size-10 shrink-0 place-items-center rounded-full bg-paper text-brand-gold-foreground">
           <LockKeyhole size={19} strokeWidth={1.7} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-foreground">
-            현재 탭에만 임시 저장해요
-          </p>
+          <p className="text-xs font-bold text-foreground">{noticeTitle}</p>
           <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
-            입력 정보는 서버로 전송하지 않고 현재 탭의 데모 세션에만 저장해요.
+            {noticeDescription}
           </p>
         </div>
       </div>
 
       <button
         className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[19px] font-bold text-brand-gold-on-dark"
+        disabled={isSubmitting}
         type="submit"
       >
         <Sparkles size={19} />
-        {submitLabel}
+        {isSubmitting ? "저장하고 있어요" : submitLabel}
       </button>
       {formError ? (
         <p className="text-center text-xs font-semibold text-destructive" role="alert">

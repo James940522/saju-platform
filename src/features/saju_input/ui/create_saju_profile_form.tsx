@@ -1,57 +1,97 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { clearDemoReadingPurchases } from "@/entities/reading_purchase";
 import {
-  saveDemoSajuProfile,
   type SajuProfileDraft,
-  type SajuProfileSlot,
+  type SajuRelationType,
 } from "@/entities/saju_profile";
+import {
+  createSajuProfile,
+  sajuProfileKeys,
+  type CreateSajuProfileRequestDto,
+} from "@/entities/saju_chart";
+import { isApiClientError } from "@/shared/api";
 import { SajuProfileForm } from "./saju_profile_form";
 
 type CreateSajuProfileFormProps = {
   completionHref: string;
-  slot: SajuProfileSlot;
+  fixedRelationType?: SajuRelationType;
   submitLabel?: string;
 };
 
 export function CreateSajuProfileForm({
   completionHref,
-  slot,
+  fixedRelationType,
   submitLabel,
 }: CreateSajuProfileFormProps) {
   const router = useRouter();
-  const [storageError, setStorageError] = useState<string>();
+  const queryClient = useQueryClient();
+  const [requestError, setRequestError] = useState<string>();
+  const createProfileMutation = useMutation({
+    mutationFn: createSajuProfile,
+    async onSuccess(data) {
+      queryClient.setQueryData(
+        sajuProfileKeys.detail(data.profile.id),
+        data,
+      );
+      await queryClient.invalidateQueries({ queryKey: sajuProfileKeys.all });
+      clearDemoReadingPurchases();
+      router.replace(completionHref);
+    },
+    onError(error) {
+      setRequestError(
+        isApiClientError(error)
+          ? error.message
+          : "사주 정보를 저장하지 못했어요. 잠시 후 다시 시도해주세요.",
+      );
+    },
+  });
 
   function handleSubmit(profile: SajuProfileDraft) {
-    if (!clearDemoReadingPurchases()) {
-      setStorageError(
-        "이전 데모 결제 상태를 정리하지 못했어요. 다시 시도해주세요.",
-      );
+    if (createProfileMutation.isPending) {
       return;
     }
 
-    if (!saveDemoSajuProfile(slot, profile)) {
-      setStorageError(
-        "현재 브라우저에 데모 사주 정보를 저장하지 못했어요. 다시 시도해주세요.",
-      );
-      return;
-    }
+    const request: CreateSajuProfileRequestDto = {
+      displayName: profile.displayName,
+      relationType: profile.relationType,
+      birth: {
+        calendarType: profile.calendarType,
+        isLeapMonth: profile.isLeapMonth,
+        date: profile.birthDate,
+        time:
+          profile.birthTime.type === "known"
+            ? {
+                precision: "exact",
+                hour: profile.birthTime.hour,
+                minute: profile.birthTime.minute,
+              }
+            : { precision: "unknown" },
+        luckCycleGender: profile.gender,
+      },
+    };
 
-    setStorageError(undefined);
-    router.replace(completionHref);
+    setRequestError(undefined);
+    createProfileMutation.mutate(request);
   }
 
   return (
     <>
-      <SajuProfileForm onSubmit={handleSubmit} submitLabel={submitLabel} />
-      {storageError ? (
+      <SajuProfileForm
+        isSubmitting={createProfileMutation.isPending}
+        fixedRelationType={fixedRelationType}
+        onSubmit={handleSubmit}
+        submitLabel={submitLabel}
+      />
+      {requestError ? (
         <p
           className="mt-3 text-center text-xs font-semibold text-destructive"
           role="alert"
         >
-          {storageError}
+          {requestError}
         </p>
       ) : null}
     </>

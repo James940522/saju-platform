@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   getAuthenticatedUserId,
   getAuthServerSnapshot,
@@ -13,10 +14,8 @@ import {
   subscribeToDemoReadingPurchases,
 } from "@/entities/reading_purchase";
 import {
-  getDemoSajuProfileSnapshot,
-  parseDemoSajuProfileSnapshot,
-  subscribeToDemoSajuProfiles,
-} from "@/entities/saju_profile";
+  sajuProfileQueries,
+} from "@/entities/saju_chart";
 import { routes } from "@/shared/config";
 
 type ReadingAccessGateProps = {
@@ -38,41 +37,28 @@ export function ReadingAccessGate({
     getAuthenticatedUserId,
     getAuthServerSnapshot,
   );
-  const defaultProfileSnapshot = useSyncExternalStore<
-    string | null | undefined
-  >(
-    subscribeToDemoSajuProfiles,
-    () => getDemoSajuProfileSnapshot("default"),
-    () => undefined,
-  );
-  const partnerProfileSnapshot = useSyncExternalStore<
-    string | null | undefined
-  >(
-    subscribeToDemoSajuProfiles,
-    () => getDemoSajuProfileSnapshot("partner"),
-    () => undefined,
-  );
+  const profilesQuery = useQuery({
+    ...sajuProfileQueries.list(),
+    enabled: Boolean(userId),
+  });
   const purchaseSnapshot = useSyncExternalStore<string | null | undefined>(
     subscribeToDemoReadingPurchases,
     () => getDemoReadingPurchaseSnapshot(readingCode),
     () => undefined,
   );
   const defaultProfile =
-    typeof defaultProfileSnapshot === "string"
-      ? parseDemoSajuProfileSnapshot(defaultProfileSnapshot)
-      : null;
-  const partnerProfile =
-    typeof partnerProfileSnapshot === "string"
-      ? parseDemoSajuProfileSnapshot(partnerProfileSnapshot)
-      : null;
+    profilesQuery.data?.profiles.find((profile) => profile.isPrimary) ??
+    profilesQuery.data?.profiles[0];
+  const partnerProfile = profilesQuery.data?.profiles.findLast(
+    (profile) => profile.relationType === "partner",
+  );
   const purchase =
     typeof purchaseSnapshot === "string"
       ? parseDemoReadingPurchaseSnapshot(purchaseSnapshot)
       : null;
   const isChecking =
     userId === undefined ||
-    defaultProfileSnapshot === undefined ||
-    partnerProfileSnapshot === undefined ||
+    Boolean(userId && profilesQuery.isPending) ||
     purchaseSnapshot === undefined;
   const hasRequiredProfiles =
     Boolean(defaultProfile) && (!requiresPartner || Boolean(partnerProfile));

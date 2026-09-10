@@ -1,11 +1,15 @@
 import { ArrowLeft, CircleHelp } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getReadingDefinition } from "@/entities/reading";
-import type { SajuProfileSlot } from "@/entities/saju_profile";
+import type {
+  SajuProfileSlot,
+  SajuRelationType,
+} from "@/entities/saju_profile";
 import { AuthGate } from "@/features/auth";
 import { CreateSajuProfileForm } from "@/features/saju_input";
-import { routes } from "@/shared/config";
+import { BRAND_CHARACTER_IMAGES, routes } from "@/shared/config";
 
 const steps = ["정보 입력", "정보 확인", "사주 구성", "풀이 준비"];
 
@@ -28,26 +32,45 @@ export function SajuProfileCreatePage({
     notFound();
   }
 
-  const slot: SajuProfileSlot = role === "partner" ? "partner" : "default";
+  const profileRole: SajuProfileSlot | undefined =
+    role === "partner" ? "partner" : role === "default" ? "default" : undefined;
 
   if (
-    slot === "partner" &&
+    profileRole === "partner" &&
     (!reading || reading.subjectRequirement.type !== "pair")
   ) {
     notFound();
   }
 
-  const isPartner = slot === "partner";
-  const backHref = reading ? routes.reading(reading.code) : routes.mySaju;
+  const fixedRelationType: SajuRelationType | undefined =
+    profileRole === "partner"
+      ? "partner"
+      : profileRole === "default"
+        ? "self"
+        : undefined;
+  const isPartner = profileRole === "partner";
+  const backHref = reading
+    ? routes.reading(reading.code)
+    : profileRole
+      ? routes.mySaju
+      : routes.sajuProfiles;
   const completionHref = reading
     ? routes.readingStart(reading.code)
-    : routes.mySaju;
-  const profileLabel = isPartner ? "상대 사주" : "내 사주";
-  const loginHref = routes.login({
-    target: "profile",
-    ...(reading ? { intent: reading.code } : {}),
-    role: slot,
-  });
+    : profileRole
+      ? routes.mySaju
+      : routes.sajuProfiles;
+  const profileLabel = isPartner
+    ? "상대 사주"
+    : profileRole === "default"
+      ? "내 사주"
+      : "사주 프로필";
+  const loginHref = profileRole
+    ? routes.login({
+        target: "profile",
+        ...(reading ? { intent: reading.code } : {}),
+        role: profileRole,
+      })
+    : routes.login({ next: routes.profileNew() });
 
   return (
     <main className="min-h-dvh px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))]">
@@ -55,7 +78,13 @@ export function SajuProfileCreatePage({
         <Link
           className="grid size-11 place-items-center rounded-full border border-paper-border bg-surface text-muted-foreground"
           href={backHref}
-          aria-label={reading ? `${reading.title} 소개로 돌아가기` : "내 사주로 돌아가기"}
+          aria-label={
+            reading
+              ? `${reading.title} 소개로 돌아가기`
+              : profileRole
+                ? "내 만세력으로 돌아가기"
+                : "사주 관리로 돌아가기"
+          }
         >
           <ArrowLeft size={22} strokeWidth={1.7} />
         </Link>
@@ -106,10 +135,15 @@ export function SajuProfileCreatePage({
         ))}
       </ol>
 
-      <section className="mt-7 grid min-h-[186px] grid-cols-[92px_minmax(0,1fr)] items-center gap-4 rounded-[22px] bg-hero p-5 text-primary-foreground">
-        <div className="grid size-[92px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-xs text-brand-gold-foreground">
-          캐릭터
-        </div>
+      <section className="mt-7 grid min-h-[186px] grid-cols-[104px_minmax(0,1fr)] items-center gap-3 overflow-hidden rounded-[22px] bg-hero p-5 text-primary-foreground">
+        <Image
+          alt=""
+          className="h-auto w-[104px] object-contain"
+          height={208}
+          preload
+          src={BRAND_CHARACTER_IMAGES.thinking}
+          width={208}
+        />
         <div>
           <h2 className="font-display text-[21px] font-bold leading-[1.55]">
             정확한 입력이
@@ -129,7 +163,7 @@ export function SajuProfileCreatePage({
       <AuthGate loginHref={loginHref}>
         <CreateSajuProfileForm
           completionHref={completionHref}
-          slot={slot}
+          fixedRelationType={fixedRelationType}
           submitLabel={`${profileLabel} 저장하기`}
         />
       </AuthGate>

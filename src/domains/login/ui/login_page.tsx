@@ -1,13 +1,16 @@
-import { ArrowLeft, LogIn, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getReadingDefinition } from "@/entities/reading";
 import { SocialLoginButtons } from "@/features/auth";
-import { routes } from "@/shared/config";
+import { BRAND_CHARACTER_IMAGES, routes } from "@/shared/config";
+import { getSafeReturnPath } from "@/shared/lib";
 
 type LoginPageProps = {
   authError?: string;
   intent?: string;
+  next?: string;
   role?: string;
   target?: string;
 };
@@ -19,8 +22,15 @@ const LOGIN_ERROR_MESSAGE: Record<string, string> = {
     "로그인은 확인했지만 사용자 정보를 준비하지 못했어요. 잠시 후 다시 시도해주세요.",
 };
 
-export function LoginPage({ authError, intent, role, target }: LoginPageProps) {
+export function LoginPage({
+  authError,
+  intent,
+  next,
+  role,
+  target,
+}: LoginPageProps) {
   const reading = intent ? getReadingDefinition(intent) : undefined;
+  const nextPath = getSafeReturnPath(next);
 
   if (intent && !reading) {
     notFound();
@@ -38,6 +48,10 @@ export function LoginPage({ authError, intent, role, target }: LoginPageProps) {
     notFound();
   }
 
+  if (next && (!nextPath || intent || role || target)) {
+    notFound();
+  }
+
   if (
     target === "profile" &&
     role === "partner" &&
@@ -46,8 +60,9 @@ export function LoginPage({ authError, intent, role, target }: LoginPageProps) {
     notFound();
   }
 
-  const completionHref =
-    target === "profile"
+  const completionHref = nextPath
+    ? nextPath
+    : target === "profile"
       ? routes.profileNew({
           ...(reading ? { intent: reading.code } : {}),
           role: role === "partner" ? "partner" : "default",
@@ -75,18 +90,24 @@ export function LoginPage({ authError, intent, role, target }: LoginPageProps) {
         </div>
       </header>
 
-      <section className="mt-7 rounded-[24px] bg-hero px-5 py-7 text-primary-foreground shadow-soft">
-        <span className="grid size-12 place-items-center rounded-full border border-brand-gold text-brand-gold-on-dark">
-          <LogIn size={23} strokeWidth={1.7} />
-        </span>
-        <h2 className="mt-4 font-display text-[23px] font-bold leading-[1.45]">
-          {reading
-            ? `${reading.title} 풀이를 시작하려면 로그인해주세요`
-            : "내 사주와 풀이 기록을 이어서 확인해요"}
-        </h2>
-        <p className="mt-3 text-xs leading-5 text-hero-foreground">
-          카카오 또는 네이버 계정으로 간편하게 시작할 수 있어요.
-        </p>
+      <section className="mt-7 grid min-h-[224px] grid-cols-[minmax(0,1fr)_92px] items-center gap-2 overflow-hidden rounded-[24px] bg-hero px-5 py-6 text-primary-foreground shadow-soft min-[390px]:grid-cols-[minmax(0,1fr)_108px]">
+        <div className="min-w-0">
+          <h2 className="font-display text-[22px] font-bold leading-[1.45]">
+            {reading
+              ? `${reading.title} 풀이를 시작하려면 로그인해주세요`
+              : "내 사주와 풀이 기록을 이어서 확인해요"}
+          </h2>
+          <p className="mt-3 text-xs leading-5 text-hero-foreground">
+            카카오 계정으로 간편하게 시작할 수 있어요.
+          </p>
+        </div>
+        <Image
+          alt=""
+          className="h-auto w-[96px] object-contain min-[390px]:w-[112px]"
+          height={224}
+          src={BRAND_CHARACTER_IMAGES.waving}
+          width={224}
+        />
       </section>
 
       <SocialLoginButtons

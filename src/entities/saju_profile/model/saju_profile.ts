@@ -2,6 +2,13 @@ export type SajuGender = "male" | "female";
 
 export type SajuCalendarType = "solar" | "lunar";
 
+export type SajuRelationType =
+  | "self"
+  | "family"
+  | "friend"
+  | "partner"
+  | "other";
+
 export type SajuBirthDate = {
   year: number;
   month: number;
@@ -20,12 +27,12 @@ export type SajuBirthTime =
 
 export type SajuProfileDraft = {
   displayName: string;
+  relationType: SajuRelationType;
   gender: SajuGender;
   calendarType: SajuCalendarType;
   isLeapMonth: boolean;
   birthDate: SajuBirthDate;
   birthTime: SajuBirthTime;
-  birthRegion?: string;
 };
 
 export type SajuProfileSlot = "default" | "partner";

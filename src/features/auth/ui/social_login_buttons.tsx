@@ -9,17 +9,15 @@ type SocialLoginButtonsProps = {
   initialError?: string;
 };
 
-type SocialProvider = "kakao" | "custom:naver";
-
 export function SocialLoginButtons({
   completionHref,
   initialError,
 }: SocialLoginButtonsProps) {
-  const [pendingProvider, setPendingProvider] = useState<SocialProvider>();
+  const [isPending, setIsPending] = useState(false);
   const [loginError, setLoginError] = useState(initialError);
 
-  async function handleSignIn(provider: SocialProvider) {
-    setPendingProvider(provider);
+  async function handleSignIn() {
+    setIsPending(true);
     setLoginError(undefined);
 
     try {
@@ -27,7 +25,7 @@ export function SocialLoginButtons({
       const callbackUrl = new URL("/auth/callback", window.location.origin);
       callbackUrl.searchParams.set("next", completionHref);
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: "kakao",
         options: {
           redirectTo: callbackUrl.toString(),
         },
@@ -40,36 +38,22 @@ export function SocialLoginButtons({
       setLoginError(
         "로그인을 시작하지 못했어요. 잠시 후 다시 시도해주세요.",
       );
-      setPendingProvider(undefined);
+      setIsPending(false);
     }
   }
-
-  const isPending = pendingProvider !== undefined;
 
   return (
     <section className="mt-6 space-y-3" aria-label="소셜 로그인">
       <button
         className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#FEE500] text-[15px] font-bold text-[#191919] disabled:opacity-60"
         disabled={isPending}
-        onClick={() => void handleSignIn("kakao")}
+        onClick={() => void handleSignIn()}
         type="button"
       >
         <span className="font-black" aria-hidden="true">
           K
         </span>
-        {pendingProvider === "kakao" ? "카카오로 이동 중..." : "카카오로 계속하기"}
-      </button>
-
-      <button
-        className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#03C75A] text-[15px] font-bold text-white disabled:opacity-60"
-        disabled={isPending}
-        onClick={() => void handleSignIn("custom:naver")}
-        type="button"
-      >
-        <span className="font-black" aria-hidden="true">
-          N
-        </span>
-        {pendingProvider === "custom:naver" ? "네이버로 이동 중..." : "네이버로 계속하기"}
+        {isPending ? "카카오로 이동 중..." : "카카오로 계속하기"}
       </button>
 
       {loginError ? (

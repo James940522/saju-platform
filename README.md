@@ -1,8 +1,8 @@
-# Saju Platform
+# 선녀 사주 Frontend
 
 한국 사주/운세 기반 모바일 중심 서비스의 프론트엔드 repository다.
 
-서비스명은 아직 확정되지 않았으므로 `saju-platform`은 개발상 식별자로만 사용한다. 제품 방향과 작업 규칙은 아래 문서를 먼저 확인한다.
+서비스명은 `선녀 사주`이며, `saju-platform`은 repository와 package의 개발상 식별자로 사용한다. 제품 방향과 작업 규칙은 아래 문서를 먼저 확인한다.
 
 - `AGENTS.md`
 - `docs/product_context.md`

@@ -16,7 +16,7 @@ const navigationItems: NavigationItem[] = [
   { label: "홈", href: routes.home, icon: Home },
   { label: "풀이", href: routes.readings, icon: BookOpenText },
   { label: "운세", href: routes.fortune, icon: Sparkles },
-  { label: "내 사주", href: routes.mySaju, icon: UserRound },
+  { label: "내 만세력", href: routes.mySaju, icon: UserRound },
 ];
 
 function isActivePath(pathname: string, href: string) {

@@ -15,7 +15,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Project Status
 
 - 이 프로젝트는 한국 사주/운세 기반의 모바일 중심 프론트엔드 서비스다.
-- 현재 서비스명은 확정되지 않았으므로 코드, 변수, 디렉터리, 문서에 특정 브랜드명을 강하게 결합하지 않는다.
+- 서비스명은 `선녀 사주`로 확정되었다. 사용자 노출 이름은 이 표기를 사용하되 코드, 변수, 디렉터리는 기능과 도메인 중심으로 명명한다.
 - 현재 단계는 Frontend UI Development Phase다.
 - 아직 실제 백엔드, 인증, 결제, AI Provider, 데이터베이스 연동을 구현하지 않는다.
 - 현재 우선순위는 UI 완성, 화면 흐름 완성, 공통 컴포넌트 정리, 이후 백엔드 API 연결이다.

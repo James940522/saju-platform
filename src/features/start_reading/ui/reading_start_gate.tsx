@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useSyncExternalStore } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type {
   ReadingCode,
   ReadingSubjectRequirement,
@@ -25,11 +26,9 @@ import {
   subscribeToDemoReadingPurchases,
 } from "@/entities/reading_purchase";
 import {
-  getDemoSajuProfileSnapshot,
-  parseDemoSajuProfileSnapshot,
-  subscribeToDemoSajuProfiles,
-  type SajuProfileDraft,
-} from "@/entities/saju_profile";
+  sajuProfileQueries,
+  type SajuProfileSummaryDto,
+} from "@/entities/saju_chart";
 import { routes } from "@/shared/config";
 
 type ReadingStartGateProps = {
@@ -48,7 +47,7 @@ function ProfileStatusCard({
   profile,
 }: {
   label: string;
-  profile: SajuProfileDraft;
+  profile: SajuProfileSummaryDto;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
@@ -58,8 +57,8 @@ function ProfileStatusCard({
       <div className="min-w-0">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className="mt-1 truncate text-sm font-bold text-foreground">
-          {profile.displayName} · {profile.birthDate.year}.
-          {profile.birthDate.month}.{profile.birthDate.day}
+          {profile.displayName} · {profile.birth.date.year}.
+          {profile.birth.date.month}.{profile.birth.date.day}
         </p>
       </div>
     </div>
@@ -90,33 +89,21 @@ export function ReadingStartGate({
     getAuthenticatedUserId,
     getAuthServerSnapshot,
   );
-  const defaultProfileSnapshot = useSyncExternalStore<
-    string | null | undefined
-  >(
-    subscribeToDemoSajuProfiles,
-    () => getDemoSajuProfileSnapshot("default"),
-    () => undefined,
-  );
-  const partnerProfileSnapshot = useSyncExternalStore<
-    string | null | undefined
-  >(
-    subscribeToDemoSajuProfiles,
-    () => getDemoSajuProfileSnapshot("partner"),
-    () => undefined,
-  );
+  const profilesQuery = useQuery({
+    ...sajuProfileQueries.list(),
+    enabled: Boolean(userId),
+  });
   const purchaseSnapshot = useSyncExternalStore<string | null | undefined>(
     subscribeToDemoReadingPurchases,
     () => getDemoReadingPurchaseSnapshot(readingCode),
     () => undefined,
   );
   const defaultProfile =
-    typeof defaultProfileSnapshot === "string"
-      ? parseDemoSajuProfileSnapshot(defaultProfileSnapshot)
-      : null;
-  const partnerProfile =
-    typeof partnerProfileSnapshot === "string"
-      ? parseDemoSajuProfileSnapshot(partnerProfileSnapshot)
-      : null;
+    profilesQuery.data?.profiles.find((profile) => profile.isPrimary) ??
+    profilesQuery.data?.profiles[0];
+  const partnerProfile = profilesQuery.data?.profiles.findLast(
+    (profile) => profile.relationType === "partner",
+  );
   const parsedPurchase =
     typeof purchaseSnapshot === "string"
       ? parseDemoReadingPurchaseSnapshot(purchaseSnapshot)
@@ -128,8 +115,7 @@ export function ReadingStartGate({
       : null;
   const isChecking =
     userId === undefined ||
-    defaultProfileSnapshot === undefined ||
-    partnerProfileSnapshot === undefined ||
+    Boolean(userId && profilesQuery.isPending) ||
     purchaseSnapshot === undefined;
   const hasDefaultProfile = Boolean(defaultProfile);
 

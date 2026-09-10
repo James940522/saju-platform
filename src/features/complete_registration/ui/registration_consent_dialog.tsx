@@ -19,6 +19,7 @@ import {
   userKeys,
   userQueries,
 } from "@/entities/user";
+import { sajuProfileKeys } from "@/entities/saju_chart";
 import { routes } from "@/shared/config";
 
 type AgeConfirmation = "at_least_14" | "under_14" | undefined;
@@ -45,8 +46,9 @@ export function RegistrationConsentDialog() {
   });
   const registrationMutation = useMutation({
     mutationFn: completeCurrentUserRegistration,
-    onSuccess(data) {
+    async onSuccess(data) {
       queryClient.setQueryData(userKeys.current(), data);
+      await queryClient.invalidateQueries({ queryKey: sajuProfileKeys.all });
     },
   });
   const isOpen =

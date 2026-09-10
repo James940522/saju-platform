@@ -4,6 +4,7 @@ type SajuProfileRouteOptions = {
 };
 
 type LoginRouteOptions = SajuProfileRouteOptions & {
+  next?: string;
   target?: "profile";
 };
 
@@ -20,6 +21,10 @@ function createLoginRoute(options: LoginRouteOptions = {}) {
 
   if (options.role) {
     searchParams.set("role", options.role);
+  }
+
+  if (options.next) {
+    searchParams.set("next", options.next);
   }
 
   const query = searchParams.toString();
@@ -48,6 +53,11 @@ export const routes = {
   readings: "/readings",
   fortune: "/fortune",
   mySaju: "/my-saju",
+  sajuProfiles: "/profiles",
+  sajuProfile: (profileId: string) =>
+    `/profiles/${encodeURIComponent(profileId)}`,
+  sajuProfileEdit: (profileId: string) =>
+    `/profiles/${encodeURIComponent(profileId)}/edit`,
   login: createLoginRoute,
   reading: (readingCode: string) => `/readings/${readingCode}`,
   readingStart: (readingCode: string) => `/readings/${readingCode}/start`,

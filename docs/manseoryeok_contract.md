@@ -41,10 +41,11 @@ Backend는 별도 저장소인 `saju-platform-server`에서 관리한다. Backen
 
 | 필드군 | 목적 |
 | --- | --- |
-| `ownerUserId`, `displayName`, `kind`, `relationType` | 소유권과 프로필 정보 |
+| `ownerUserId`, `displayName`, `relationType` | 소유권과 프로필 정보 |
 | 달력, 생년월일, 시간 정밀도, 시각, 윤달, 성별 기준값, timezone | 사용자가 입력한 계산 원본 |
 | `currentChartId` | 현재 활성화된 불변 Snapshot 참조 |
-| `createdAt`, `updatedAt`, `deletedAt` | 수명 주기와 soft delete |
+| `createdAt`, `updatedAt` | 생성·변경 수명 주기 |
+| `deletedAt` | 운영상 비노출 처리를 위한 예약 필드. 사용자 삭제는 hard delete |
 
 ### SajuChart
 
@@ -75,10 +76,27 @@ Backend는 별도 저장소인 `saju-platform-server`에서 관리한다. Backen
 - `POST /v1/saju-profiles`: 프로필과 최초 차트를 함께 생성한다.
 - `GET /v1/saju-profiles`: 차트 본문 없이 프로필 요약만 반환한다.
 - `GET /v1/saju-profiles/:profileId`: 프로필과 현재 차트를 함께 반환한다.
-- `PATCH /v1/saju-profiles/:profileId`: 계산 입력 변경 시 새 차트를 만든다.
+- `PATCH /v1/saju-profiles/:profileId`: 프로필을 수정한다. 계산 입력이
+  바뀌면 새 불변 차트를 만들며, 같은 엔진·정책·입력의 차트가 이미 있으면
+  해당 스냅샷을 재사용한다.
+- `DELETE /v1/saju-profiles/:profileId`: 프로필을 hard delete하고 연결된
+  모든 `SajuChart`를 database cascade로 영구 삭제한다. 대표 프로필을
+  삭제하면 남은 프로필 중 가장 먼저 등록한 프로필을 새 대표로 지정한다.
+
+향후 저장 풀이 모델은 입력에 사용한 `chartId`를 외래키로 보관한다.
+프로필 삭제 시에는 같은 transaction 안에서 해당 프로필의 차트를 참조하는
+풀이 결과를 먼저 명시적으로 삭제한 뒤 프로필과 차트를 삭제한다. 풀이에서
+차트로 향하는 외래키는 `RESTRICT`로 두어 누락된 종속 데이터가 있으면 전체
+삭제를 rollback한다. 결제·정산 기록은 풀이 본문과 분리하여 법적 보존 정책을
+적용하며, 프로필 삭제는 환불을 의미하지 않는다.
+
+아래 API는 다음 vertical slice에서 추가한다.
+
 - `GET /v1/saju-charts/:chartId`: 특정 불변 Snapshot을 조회한다.
 - `POST /v1/saju-readings`: `chartId` 또는 관계 풀이용 두 `chartId`만 받는다.
 
 ## 현재 UI 연결
 
-`/my-saju`에서 데모 로그인과 기본 사주 저장이 완료된 경우 만세력 UI 미리보기를 표시한다. 현재 표시값은 사용자의 입력을 계산한 결과가 아니라 `DEMO_SAJU_CHART_SNAPSHOT`이며, 화면에도 이 사실을 명확히 안내한다. 서버 연결 시 해당 상수만 `GET /v1/saju-profiles/:profileId`의 `chart.snapshot`으로 교체한다.
+`/my-saju`는 `GET /v1/saju-profiles`에서 대표 프로필을 찾고,
+`GET /v1/saju-profiles/:profileId`의 `chart.snapshot`을 만세력 UI에 표시한다.
+등록 폼은 `POST /v1/saju-profiles`를 호출하며 브라우저 임시 저장소를 사용하지 않는다.

@@ -5,38 +5,34 @@ import type {
 } from "@/shared/api";
 import type {
   BirthInput,
+  LuckCycleGender,
   SajuChartSnapshot,
 } from "../model/saju_chart";
-
-export type SajuProfileKind = "self" | "other";
-
-export type SajuRelationType =
-  | "self"
-  | "family"
-  | "friend"
-  | "partner"
-  | "coworker"
-  | "other";
+import type { SajuRelationType } from "@/entities/saju_profile";
 
 export type CreateSajuProfileRequestDto = {
   displayName: string;
-  kind: SajuProfileKind;
   relationType: SajuRelationType;
-  birth: BirthInput;
+  birth: Omit<BirthInput, "luckCycleGender"> & {
+    luckCycleGender: LuckCycleGender;
+  };
 };
 
-export type UpdateSajuProfileRequestDto = {
-  displayName?: string;
-  relationType?: SajuRelationType;
-  birth?: BirthInput;
-};
+export type UpdateSajuProfileRequestDto = Partial<
+  CreateSajuProfileRequestDto
+>;
 
 export type SajuProfileSummaryDto = {
   id: string;
   displayName: string;
-  kind: SajuProfileKind;
   relationType: SajuRelationType;
+  isPrimary: boolean;
+  birth: Omit<BirthInput, "luckCycleGender"> & {
+    luckCycleGender: LuckCycleGender;
+  };
   currentChartId: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type SajuChartDto = {
@@ -59,6 +55,13 @@ export type GetSajuProfileResponseDto = ApiResponse<{
   chart: SajuChartDto | null;
 }>;
 
+export type UpdateSajuProfileResponseDto = GetSajuProfileResponseDto;
+
+export type DeleteSajuProfileResponseDto = ApiResponse<{
+  deletedProfileId: string;
+  primarySajuProfileId: string | null;
+}>;
+
 export type GetSajuChartResponseDto = ApiResponse<{
   chart: SajuChartDto;
 }>;
@@ -69,11 +72,14 @@ export type SajuApiErrorReason =
   | "INVALID_LUNAR_DATE"
   | "INVALID_LEAP_MONTH"
   | "UNSUPPORTED_BIRTH_YEAR"
+  | "FUTURE_BIRTH_DATE"
   | "BIRTH_TIME_REQUIRED_ON_BOUNDARY_DATE"
   | "SAJU_PROFILE_NOT_FOUND"
   | "SAJU_CHART_NOT_FOUND"
   | "ACCESS_DENIED"
   | "CALCULATION_FAILED"
+  | "USER_REGISTRATION_REQUIRED"
+  | "USER_ACCESS_DENIED"
   | "RATE_LIMITED";
 
 export type SajuApiErrorData = Omit<ApiErrorData, "reason"> & {

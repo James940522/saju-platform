@@ -9,7 +9,9 @@ import {
   Sparkles,
   Sprout,
   SunMedium,
+  UserRound,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -18,7 +20,7 @@ import {
 } from "@/entities/reading";
 import { ReadingAccessGate } from "@/features/reading_access";
 import { SaveResultButton } from "@/features/result_save";
-import { routes } from "@/shared/config";
+import { BRAND_CHARACTER_IMAGES, BRAND_NAME, routes } from "@/shared/config";
 
 const relationshipFlow = [
   {
@@ -62,11 +64,11 @@ const keyInterpretations = [
   },
 ];
 
-function CharacterCircle({ label }: { label: string }) {
+function ProfileCircle({ label }: { label: string }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="grid size-[76px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[11px] text-brand-gold-foreground min-[390px]:size-[94px]">
-        캐릭터
+      <div className="grid size-[76px] place-items-center rounded-full border border-brand-gold bg-brand-cream text-brand-gold-foreground min-[390px]:size-[94px]">
+        <UserRound aria-hidden="true" size={34} strokeWidth={1.5} />
       </div>
       <span className="font-display text-sm font-bold text-[#f2d486]">
         {label}
@@ -119,7 +121,7 @@ function PastLifeRelationshipContent() {
         </p>
 
         <div className="mt-5 grid grid-cols-[76px_minmax(0,1fr)_76px] items-center gap-2 min-[390px]:grid-cols-[94px_minmax(0,1fr)_94px]">
-          <CharacterCircle label="나" />
+          <ProfileCircle label="나" />
           <div className="min-w-0 text-center">
             <h2 className="font-display text-[20px] font-bold leading-[1.55] min-[390px]:text-[23px]">
               스쳐간 사이가 아니라
@@ -134,7 +136,7 @@ function PastLifeRelationshipContent() {
               인연의 흐름이 보여요.
             </p>
           </div>
-          <CharacterCircle label="상대" />
+          <ProfileCircle label="상대" />
         </div>
 
         <dl className="mt-6 grid grid-cols-3 gap-2">
@@ -190,8 +192,8 @@ function PastLifeRelationshipContent() {
               <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-semibold text-primary-foreground">
                 나의 성향
               </span>
-              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[10px] text-brand-gold-foreground">
-                캐릭터
+              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream text-brand-gold-foreground">
+                <UserRound aria-hidden="true" size={30} strokeWidth={1.5} />
               </div>
             </div>
 
@@ -210,8 +212,8 @@ function PastLifeRelationshipContent() {
               <span className="rounded-full bg-primary px-3 py-1 text-[10px] font-semibold text-primary-foreground">
                 상대의 성향
               </span>
-              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[10px] text-brand-gold-foreground">
-                캐릭터
+              <div className="grid size-[72px] place-items-center rounded-full border border-brand-gold bg-brand-cream text-brand-gold-foreground">
+                <UserRound aria-hidden="true" size={30} strokeWidth={1.5} />
               </div>
             </div>
           </div>
@@ -259,7 +261,7 @@ function PastLifeRelationshipContent() {
         <SunMedium className="mt-0.5 shrink-0 text-[#b18129]" size={28} strokeWidth={1.5} />
         <div>
           <h2 className="font-display text-[16px] font-bold text-foreground">
-            00사주의 한 줄 조언
+            {BRAND_NAME}의 한 줄 조언
           </h2>
           <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
             이 인연은 답을 주는 관계가 아니라, 서로를 비추며 성장하게 하는
@@ -268,7 +270,7 @@ function PastLifeRelationshipContent() {
         </div>
       </aside>
 
-      <section className="mt-3 grid min-h-[184px] grid-cols-[minmax(0,1fr)_82px] items-center gap-3 rounded-[22px] bg-hero p-5 text-primary-foreground">
+      <section className="mt-3 grid min-h-[194px] grid-cols-[minmax(0,1fr)_96px] items-center gap-2 overflow-hidden rounded-[22px] bg-hero p-5 text-primary-foreground min-[390px]:grid-cols-[minmax(0,1fr)_112px]">
         <div>
           <p className="flex items-center gap-2 font-display text-[20px] font-bold text-[#efc86d]">
             <MoonStar size={20} />
@@ -284,9 +286,13 @@ function PastLifeRelationshipContent() {
             상세 풀이 이어보기
           </button>
         </div>
-        <div className="grid size-[82px] place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[11px] text-brand-gold-foreground">
-          캐릭터
-        </div>
+        <Image
+          alt=""
+          className="h-auto w-[100px] object-contain min-[390px]:w-[116px]"
+          height={232}
+          src={BRAND_CHARACTER_IMAGES.heart}
+          width={232}
+        />
       </section>
 
       <div className="mt-3 flex gap-2">

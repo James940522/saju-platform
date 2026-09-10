@@ -1,14 +1,8 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import {
-  CalendarDays,
-  ChevronRight,
-  Clock3,
-  Coins,
-  History,
-  SunMedium,
-} from "lucide-react";
+import { ChevronRight, Coins, History, SunMedium } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
@@ -18,7 +12,7 @@ import {
   type ReadingCode,
 } from "@/entities/reading";
 import { isApiClientError } from "@/shared/api";
-import { routes } from "@/shared/config";
+import { BRAND_CHARACTER_IMAGES, routes } from "@/shared/config";
 import { useMinimumLoadingTime } from "@/shared/lib";
 import { Button, Skeleton } from "@/shared/ui";
 
@@ -31,56 +25,68 @@ type ProductPlacement = {
   icon: LucideIcon;
 };
 
+type CharacterProductPlacement = ProductPlacement & {
+  imageSrc: string;
+};
+
+type FortuneProductPlacement = Omit<ProductPlacement, "icon"> & {
+  imageSrc: string;
+};
+
 const togetherProductPlacements = [
   {
     code: "wealth-ranking",
     description: "우리 중 누가 제일\n재물운이 강할까?",
+    imageSrc: BRAND_CHARACTER_IMAGES.coins,
     icon: Coins,
   },
   {
     code: "past-life-relationship",
     description: "두 사람의 인연을\n이야기로 풀어봐요.",
+    imageSrc: BRAND_CHARACTER_IMAGES.heart,
     icon: History,
   },
-] satisfies readonly ProductPlacement[];
+] satisfies readonly CharacterProductPlacement[];
 
 const nearFortunePlacements = [
   {
     code: "daily-fortune",
     description: "오늘의 흐름",
-    icon: SunMedium,
+    imageSrc: BRAND_CHARACTER_IMAGES.spirit,
   },
   {
     code: "monthly-fortune",
     description: "이달의 변화",
-    icon: CalendarDays,
+    imageSrc: BRAND_CHARACTER_IMAGES.calendar,
   },
   {
     code: "three-month-fortune",
     description: "앞으로의 흐름",
-    icon: Clock3,
+    imageSrc: BRAND_CHARACTER_IMAGES.hourglass,
   },
-] satisfies readonly ProductPlacement[];
+] satisfies readonly FortuneProductPlacement[];
 
-function CharacterSlot() {
+function CharacterSlot({ src }: { src: string }) {
   return (
-    <div
-      aria-label="캐릭터 이미지 자리"
-      className="grid size-12 shrink-0 place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-[10px] text-brand-gold-foreground min-[390px]:size-14"
-    >
-      캐릭터
-    </div>
+    <Image
+      alt=""
+      className="size-12 shrink-0 object-contain min-[390px]:size-14"
+      height={112}
+      src={src}
+      width={112}
+    />
   );
 }
 
 function HeroCharacterSlot() {
   return (
-    <div
-      aria-label="캐릭터 이미지 자리"
-      className="grid size-[88px] shrink-0 place-items-center rounded-full border border-brand-gold bg-brand-cream font-display text-sm text-brand-gold-foreground min-[390px]:size-[104px]"
-    >
-      캐릭터
-    </div>
+    <Image
+      alt=""
+      className="h-auto w-[104px] shrink-0 object-contain min-[390px]:w-[124px]"
+      height={248}
+      src={BRAND_CHARACTER_IMAGES.crystalBall}
+      width={248}
+    />
   );
 }
 
@@ -237,7 +243,7 @@ export function HomeProductSections() {
                     {placement.description}
                   </p>
                 </div>
-                <CharacterSlot />
+                <CharacterSlot src={placement.imageSrc} />
               </Link>
             );
           })}
@@ -246,7 +252,7 @@ export function HomeProductSections() {
 
       {detailedSaju ? (
         <section className="mt-6 px-4">
-          <div className="grid min-h-[252px] grid-cols-[minmax(0,1fr)_88px] items-center gap-2 overflow-hidden rounded-[22px] bg-hero px-5 py-6 text-primary-foreground shadow-soft min-[390px]:grid-cols-[minmax(0,1fr)_104px]">
+          <div className="grid min-h-[252px] grid-cols-[minmax(0,1fr)_104px] items-center gap-2 overflow-hidden rounded-[22px] bg-hero px-5 py-6 text-primary-foreground shadow-soft min-[390px]:grid-cols-[minmax(0,1fr)_124px]">
             <div className="min-w-0">
               <p className="text-xs font-semibold text-[#e4bd61]">
                 AI 프리미엄 {detailedSaju.title}
@@ -284,16 +290,20 @@ export function HomeProductSections() {
               return null;
             }
 
-            const Icon = placement.icon;
-
             return (
               <Link
                 className="flex min-h-[92px] flex-col items-center justify-center rounded-2xl border border-border bg-surface px-2 py-3 text-center"
                 href={routes.reading(product.code)}
                 key={product.code}
               >
-                <Icon className="text-primary" size={24} strokeWidth={1.6} />
-                <h3 className="mt-2 text-[12px] font-bold text-foreground">
+                <Image
+                  alt=""
+                  className="size-11 object-contain"
+                  height={88}
+                  src={placement.imageSrc}
+                  width={88}
+                />
+                <h3 className="mt-1.5 text-[12px] font-bold text-foreground">
                   {product.title}
                 </h3>
                 <p className="mt-1 text-[10px] text-muted-foreground">

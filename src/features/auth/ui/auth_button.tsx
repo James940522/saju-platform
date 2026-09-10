@@ -11,7 +11,7 @@ import {
   subscribeToAuth,
 } from "@/entities/auth";
 import { clearDemoReadingPurchases } from "@/entities/reading_purchase";
-import { clearDemoSajuProfiles } from "@/entities/saju_profile";
+import { sajuProfileKeys } from "@/entities/saju_chart";
 import { userKeys, userQueries } from "@/entities/user";
 import { routes } from "@/shared/config";
 
@@ -34,7 +34,7 @@ export function AuthButton() {
     try {
       await signOutAuthenticatedUser();
       queryClient.removeQueries({ queryKey: userKeys.all });
-      clearDemoSajuProfiles();
+      queryClient.removeQueries({ queryKey: sajuProfileKeys.all });
       clearDemoReadingPurchases();
     } catch {
       // Keep the current session and local data when sign-out fails.
