@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:wealth-ranking": "node --test test/wealth_ranking.test.mjs"
   },
   "dependencies": {
     "@fontsource/gowun-batang": "^5.3.0",

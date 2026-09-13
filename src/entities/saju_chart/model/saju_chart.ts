@@ -85,10 +85,7 @@ export type BranchSymbol = {
   yinYang: YinYangCode;
 };
 
-export type VoidBranch = Pick<
-  BranchSymbol,
-  "code" | "korean" | "hanja"
->;
+export type VoidBranch = Pick<BranchSymbol, "code" | "korean" | "hanja">;
 
 export type Ganji = {
   korean: string;
@@ -134,6 +131,8 @@ export type LuckCycle = {
 export type SajuChartWarningCode =
   | "birth_time_unknown"
   | "luck_cycle_unavailable"
+  | "day_boundary_uncertain"
+  | "historical_time_assumed"
   | "near_solar_term_boundary";
 
 export type SajuChartWarning = {
@@ -151,6 +150,15 @@ export type SajuChartNormalizedBirth = {
   time: BirthTime;
   luckCycleGender: LuckCycleGender | null;
   timezone: "Asia/Seoul";
+  timeCorrection?: {
+    method: "korean_mean_solar";
+    referenceLongitude: 127.5;
+    equationOfTimeApplied: false;
+    civilUtcOffsetMinutes: number | null;
+    adjustmentMinutes: number | null;
+    correctedSolarDate: BirthDate | null;
+    correctedTime: { hour: number; minute: number } | null;
+  };
 };
 
 export type SajuChartSnapshotV1 = {
@@ -161,6 +169,7 @@ export type SajuChartSnapshotV1 = {
     engineVersion: string;
     policyVersion: string;
     calculatedAt: string;
+    timeZoneDatabaseVersion?: string;
   };
   normalizedBirth: SajuChartNormalizedBirth;
   pillars: {

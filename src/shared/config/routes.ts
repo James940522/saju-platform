@@ -53,6 +53,9 @@ export const routes = {
   readings: "/readings",
   fortune: "/fortune",
   mySaju: "/my-saju",
+  account: "/account",
+  terms: "/terms",
+  privacy: "/privacy",
   sajuProfiles: "/profiles",
   sajuProfile: (profileId: string) =>
     `/profiles/${encodeURIComponent(profileId)}`,

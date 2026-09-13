@@ -21,7 +21,7 @@ const accountItems = [
   },
   { title: "저장한 풀이", description: "구매하거나 저장한 해석", icon: ScrollText },
   { title: "결제 내역", description: "구매 기록과 영수증", icon: CreditCard },
-  { title: "계정 관리", description: "로그인, 알림, 고객센터", icon: Settings },
+  { title: "계정 관리", description: "로그인 정보와 회원 탈퇴", icon: Settings, href: routes.account },
 ];
 
 export function MySajuPage() {

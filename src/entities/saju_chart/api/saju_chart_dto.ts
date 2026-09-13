@@ -1,8 +1,4 @@
-import type {
-  ApiErrorData,
-  ApiErrorResponse,
-  ApiResponse,
-} from "@/shared/api";
+import type { ApiErrorData, ApiErrorResponse, ApiResponse } from "@/shared/api";
 import type {
   BirthInput,
   LuckCycleGender,
@@ -18,9 +14,7 @@ export type CreateSajuProfileRequestDto = {
   };
 };
 
-export type UpdateSajuProfileRequestDto = Partial<
-  CreateSajuProfileRequestDto
->;
+export type UpdateSajuProfileRequestDto = Partial<CreateSajuProfileRequestDto>;
 
 export type SajuProfileSummaryDto = {
   id: string;
@@ -74,6 +68,11 @@ export type SajuApiErrorReason =
   | "UNSUPPORTED_BIRTH_YEAR"
   | "FUTURE_BIRTH_DATE"
   | "BIRTH_TIME_REQUIRED_ON_BOUNDARY_DATE"
+  | "NONEXISTENT_BIRTH_TIME"
+  | "AMBIGUOUS_BIRTH_TIME"
+  | "IDEMPOTENCY_KEY_REUSED"
+  | "SAJU_PROFILE_CREATION_DELETED"
+  | "SAJU_PROFILE_CHART_UNAVAILABLE"
   | "SAJU_PROFILE_NOT_FOUND"
   | "SAJU_CHART_NOT_FOUND"
   | "ACCESS_DENIED"

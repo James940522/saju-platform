@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isApiErrorResponse } from "@/shared/api";
 import { API_BASE_URL } from "@/shared/api/config/api_config";
 import { getSafeReturnPath } from "@/shared/lib";
 import { getSupabasePublicConfig } from "@/shared/supabase/config";
@@ -52,10 +53,18 @@ export async function GET(request: Request) {
         Authorization: `Bearer ${data.session.access_token}`,
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
     });
 
-    if (!response.ok && response.status !== 404) {
-      throw new Error("User lookup failed.");
+    if (!response.ok) {
+      const body: unknown = await response.json();
+      if (
+        response.status !== 404 ||
+        !isApiErrorResponse(body) ||
+        body.data?.reason !== "USER_NOT_FOUND"
+      ) {
+        throw new Error("User lookup failed.");
+      }
     }
   } catch {
     await supabase.auth.signOut();

@@ -22,11 +22,12 @@ function toUser(user: UserDto): User {
   };
 }
 
-export async function getCurrentUser(): Promise<CurrentUserData | null> {
+export async function getCurrentUser(signal?: AbortSignal): Promise<CurrentUserData | null> {
   try {
     const response = await requestApi<CurrentUserDataDto>({
       method: "GET",
       url: "/v1/users/me",
+      signal,
     });
 
     return { user: toUser(response.data.user) };
@@ -41,6 +42,22 @@ export async function getCurrentUser(): Promise<CurrentUserData | null> {
 
     throw error;
   }
+}
+
+export type AccountWithdrawalResult = { status: "completed" | "processing" };
+
+export async function withdrawCurrentUser(): Promise<AccountWithdrawalResult> {
+  const response = await requestApi<AccountWithdrawalResult, { confirmDataDeletion: true }>({
+    method: "DELETE",
+    url: "/v1/users/me",
+    data: { confirmDataDeletion: true },
+    timeout: 25_000,
+  });
+  if (!((response.code === 200 && response.data.status === "completed") ||
+    (response.code === 202 && response.data.status === "processing"))) {
+    throw new Error("Invalid withdrawal response");
+  }
+  return response.data;
 }
 
 export async function completeCurrentUserRegistration(): Promise<CurrentUserData> {

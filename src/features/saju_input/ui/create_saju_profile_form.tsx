@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { clearDemoReadingPurchases } from "@/entities/reading_purchase";
 import {
   type SajuProfileDraft,
@@ -30,18 +30,24 @@ export function CreateSajuProfileForm({
   const router = useRouter();
   const queryClient = useQueryClient();
   const [requestError, setRequestError] = useState<string>();
+  const submissionRef = useRef<{ signature: string; key: string } | null>(null);
+  const isSubmissionInFlight = useRef(false);
   const createProfileMutation = useMutation({
-    mutationFn: createSajuProfile,
+    mutationFn: ({
+      request,
+      key,
+    }: {
+      request: CreateSajuProfileRequestDto;
+      key: string;
+    }) => createSajuProfile(request, key),
     async onSuccess(data) {
-      queryClient.setQueryData(
-        sajuProfileKeys.detail(data.profile.id),
-        data,
-      );
+      queryClient.setQueryData(sajuProfileKeys.detail(data.profile.id), data);
       await queryClient.invalidateQueries({ queryKey: sajuProfileKeys.all });
       clearDemoReadingPurchases();
       router.replace(completionHref);
     },
     onError(error) {
+      isSubmissionInFlight.current = false;
       setRequestError(
         isApiClientError(error)
           ? error.message
@@ -51,7 +57,7 @@ export function CreateSajuProfileForm({
   });
 
   function handleSubmit(profile: SajuProfileDraft) {
-    if (createProfileMutation.isPending) {
+    if (isSubmissionInFlight.current) {
       return;
     }
 
@@ -75,7 +81,12 @@ export function CreateSajuProfileForm({
     };
 
     setRequestError(undefined);
-    createProfileMutation.mutate(request);
+    const signature = JSON.stringify(request);
+    if (submissionRef.current?.signature !== signature) {
+      submissionRef.current = { signature, key: crypto.randomUUID() };
+    }
+    isSubmissionInFlight.current = true;
+    createProfileMutation.mutate({ request, key: submissionRef.current.key });
   }
 
   return (
@@ -83,6 +94,7 @@ export function CreateSajuProfileForm({
       <SajuProfileForm
         isSubmitting={createProfileMutation.isPending}
         fixedRelationType={fixedRelationType}
+        onChange={() => setRequestError(undefined)}
         onSubmit={handleSubmit}
         submitLabel={submitLabel}
       />

@@ -25,9 +25,8 @@
 | --- | --- | --- |
 | Snapshot domain type | `src/entities/saju_chart/model/saju_chart.ts` | 서버가 반환하는 직렬화 가능한 만세력 결과 계약 |
 | Request/response DTO | `src/entities/saju_chart/api/saju_chart_dto.ts` | 프로필·차트·풀이 API의 임시 외부 경계. OpenAPI 타입 생성 후 생성 타입을 사용한다. |
-| Demo Snapshot | `src/entities/saju_chart/model/demo_saju_chart.ts` | 서버 연결 전 UI 검증 전용 고정 데이터 |
-| UI ViewModel | `src/widgets/manseoryeok_chart/model/manseoryeok_view_model.ts` | 화면 문구와 표시 순서로 변환된 타입 |
-| DTO → ViewModel mapper | `src/widgets/manseoryeok_chart/lib/to_manseoryeok_view_model.ts` | API 구조가 leaf UI에 새지 않도록 하는 변환 경계 |
+| UI ViewModel | `src/entities/saju_chart/model/manseoryeok_view_model.ts` | 화면 문구와 표시 순서로 변환된 타입 |
+| DTO → ViewModel mapper | `src/entities/saju_chart/lib/to_manseoryeok_view_model.ts` | API 구조가 leaf UI에 새지 않도록 하는 변환 경계 |
 
 Backend는 별도 저장소인 `saju-platform-server`에서 관리한다. Backend의 Zod schema와 OpenAPI 문서를 계약의 source of truth로 두고, Frontend는 생성 체계 도입 전까지만 entity의 `api` segment에 경계 타입을 둔다. Prisma 타입이나 Backend source file을 Frontend에서 직접 import하지 않는다.
 
@@ -97,6 +96,52 @@ Backend는 별도 저장소인 `saju-platform-server`에서 관리한다. Backen
 
 ## 현재 UI 연결
 
+입력 폼은 이름·성별·날짜·시간 선택(또는 모름)이 완성되면 350ms 대기 후
+`POST /v1/saju-charts/preview`를 호출한다. 이름과 관계는 이 요청에 포함하지 않는다.
+서버는 저장 API와 동일한 계산기로 `{ status: "calculated", snapshot: SajuChartSnapshotV1 }`을 반환한다.
+입력 아래에 일간·음양·오행과 시주/일주/월주/년주 및 십성을 표시한다.
+“오행 · 공망 자세히 보기”를 펼쳐 오행 개수와 공망을 확인한다. 대운 흐름은 표시하지 않는다.
+시간 미상은 시주 없이 6글자와 계산 경계 안내를 표시한다. 대운 미제공 안내는 화면에서 제외한다.
+서버 Snapshot의 `luckCycle`과 관련 warning은 계산·저장 계약에 유지하고 UI ViewModel에서만 제외한다.
+계산은 한국시 보정(127.5°, 균시차 제외, 과거 한국 표준시·서머타임 반영)과 보정 시각의 자정 기준이며 미리보기 단계에서 프로필과 차트를 저장하지 않는다.
+입력 변경 시 이전 요청과 결과를 폐기한다. 잘못된 날짜·윤달·절기 경계일의 시간 미상은
+서버 오류를 표시하고 입력 수정을 안내한다. 통신 실패는 현재 입력으로 수동 재시도한다.
+
+계산 표시 UI와 mapper는 `entities/saju_chart`에서 폼과 저장된 차트 화면이 재사용한다.
+`widgets/manseoryeok_chart`는 대표 프로필 조회를 조합하고 기존 공개 export를 유지한다.
+Frontend를 먼저 배포할 수 있도록 이전 서버의 `{ status: "received", snapshot: null }`도
+수신 확인으로만 처리한다. Backend 배포 후 실제 계산 결과가 표시된다.
+
+현재 계약·라이브러리 출력 확인·표시 정책은 Backend의
+[`docs/saju-chart-preview.md`](../../saju-platform-server/docs/saju-chart-preview.md)에 정리한다.
+
 `/my-saju`는 `GET /v1/saju-profiles`에서 대표 프로필을 찾고,
 `GET /v1/saju-profiles/:profileId`의 `chart.snapshot`을 만세력 UI에 표시한다.
 등록 폼은 `POST /v1/saju-profiles`를 호출하며 브라우저 임시 저장소를 사용하지 않는다.
+
+## 한국시 보정 응답 (2026-09-10)
+
+- 신규 계산 정책은 `kr-mean-solar-midnight-v2`다. 입력 시각은 `normalizedBirth.time`에 그대로 남긴다.
+- `normalizedBirth.timeCorrection`에 보정 방식·기준 경도·균시차 미적용, 당시 UTC 오프셋,
+  `adjustmentMinutes`, `correctedSolarDate`, `correctedTime`을 반환한다. UI는 이를 서식화해서 표시한다.
+- 시간 미상은 보정 분·보정 날짜·시각이 null이다. 입력 날짜 기준 일주와 일 경계 불확실성 안내를 표시한다.
+- `calculation.timeZoneDatabaseVersion`으로 서버 시간대 자료 버전을 기록한다.
+- 새 필드는 optional이므로 기존 v1 JSON도 읽는다. 과거 정책의 차트는 보정 미적용으로 표시한다.
+- 출생 입력을 포함해 저장하면 이전 정책·시간대 자료의 차트는 새 불변 차트로 활성화한다.
+  birth 없는 이름·관계 수정은 기존 차트를 유지하고 GET은 재계산하지 않는다.
+- 표준시·서머타임 전환의 존재하지 않는/중복 시각은 400 오류 안내를 표시한다.
+- 상세 규칙은 Backend [한국시 보정 정책](../../saju-platform-server/docs/saju-hour-pillar-audit.md)을 따른다.
+
+## 프로필·만세력 CRUD 저장 완료 (2026-09-10)
+
+- 등록·조회·수정·삭제는 기존 Nest API를 사용한다. 등록 시 만세력을 서버가 계산해 함께 저장한다.
+- 등록 폼은 `Idempotency-Key` UUID 헤더를 보내며 같은 입력의 화면 내 재시도에 같은 키를 쓴다.
+  입력 변경은 새 키를 사용한다. 새로고침 후 새 등록까지 합치지는 않는다.
+- 키는 선택적이므로 기존 소비자는 유지된다. 같은 사용자·키·입력은 기존 프로필과 **현재** 차트를 반환한다.
+- 다른 입력의 키 재사용은 `IDEMPOTENCY_KEY_REUSED`, 삭제된 등록의 재시도는
+  `SAJU_PROFILE_CREATION_DELETED`, 현재 차트가 없는 기존 등록은 `SAJU_PROFILE_CHART_UNAVAILABLE`(409)다.
+- 조회는 저장된 Snapshot을 그대로 반환하고, birth 없는 이름·관계 수정은 재계산하지 않는다.
+- 출생정보 변경은 새 불변 Snapshot을 연결하며 같은 입력·기준의 과거 Snapshot은 재사용한다.
+- 삭제는 모든 계산 이력을 지우고 대표 프로필을 재지정한다. 모든 프로필 응답은 no-store다.
+- 서버 DB의 동시 요청·롤백·소유권 검증과 migration 적용 현황은
+  [저장 흐름 문서](../../saju-platform-server/docs/saju-profile-storage-flow.md)에 기록한다.

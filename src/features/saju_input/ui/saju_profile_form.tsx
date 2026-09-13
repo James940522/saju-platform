@@ -7,15 +7,17 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useId, useState } from "react";
+import type { PreviewSajuChartRequestDto } from "@/entities/saju_chart";
 import type {
   SajuBirthDate,
   SajuGender,
   SajuProfileDraft,
   SajuRelationType,
 } from "@/entities/saju_profile";
+import { SajuChartPreview } from "./saju_chart_preview";
 
-const currentYear = new Date().getFullYear();
+const currentYear = new Date(Date.now() + 9 * 60 * 60 * 1000).getUTCFullYear();
 const years = Array.from(
   { length: currentYear - 1799 },
   (_, index) => currentYear - index,
@@ -106,31 +108,19 @@ type SajuProfileFormProps = {
   isSubmitting?: boolean;
   noticeDescription?: string;
   noticeTitle?: string;
+  onChange?: () => void;
   onSubmit: (profile: SajuProfileDraft) => void;
   showRelationField?: boolean;
   submitLabel?: string;
 };
 
-function getFormString(formData: FormData, key: string) {
-  const value = formData.get(key);
-
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function getFormInteger(formData: FormData, key: string) {
-  const value = getFormString(formData, key);
-  const parsedValue = Number(value);
-
-  return value && Number.isInteger(parsedValue) ? parsedValue : undefined;
-}
-
 function isValidSolarBirthDate({ year, month, day }: SajuBirthDate) {
   const date = new Date(Date.UTC(year, month - 1, day));
-  const today = new Date();
+  const today = new Date(Date.now() + 9 * 60 * 60 * 1000);
   const todayUtc = Date.UTC(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
+    today.getUTCFullYear(),
+    today.getUTCMonth(),
+    today.getUTCDate(),
   );
 
   return (
@@ -151,10 +141,12 @@ export function SajuProfileForm({
   isSubmitting = false,
   noticeDescription = "입력 정보는 로그인한 계정의 만세력 계산과 보관에 사용해요.",
   noticeTitle = "안전하게 저장해요",
+  onChange,
   onSubmit,
   showRelationField = true,
   submitLabel = "입력 완료",
 }: SajuProfileFormProps) {
+  const dateErrorId = useId();
   const [name, setName] = useState(initialProfile?.displayName ?? "");
   const [relationType, setRelationType] = useState<SajuRelationType>(
     fixedRelationType ?? initialProfile?.relationType ?? "self",
@@ -171,63 +163,79 @@ export function SajuProfileForm({
   const [isUnknownBirthTime, setIsUnknownBirthTime] = useState(
     initialProfile?.birthTime.type === "unknown",
   );
+  const [birthYear, setBirthYear] = useState(initialProfile?.birthDate.year);
+  const [birthMonth, setBirthMonth] = useState(initialProfile?.birthDate.month);
+  const [birthDay, setBirthDay] = useState(initialProfile?.birthDate.day);
+  const [birthHour, setBirthHour] = useState(
+    initialProfile?.birthTime.type === "known"
+      ? initialProfile.birthTime.hour
+      : undefined,
+  );
+  const [birthMinute, setBirthMinute] = useState(
+    initialProfile?.birthTime.type === "known"
+      ? initialProfile.birthTime.minute
+      : undefined,
+  );
   const [formError, setFormError] = useState<string>();
+
+  const birthDate =
+    birthYear !== undefined &&
+    birthMonth !== undefined &&
+    birthDay !== undefined
+      ? { year: birthYear, month: birthMonth, day: birthDay }
+      : undefined;
+  const isValidDate =
+    birthDate !== undefined &&
+    (calendarType === "solar"
+      ? isValidSolarBirthDate(birthDate)
+      : isValidLunarBirthDate(birthDate));
+  const birthTime = isUnknownBirthTime
+    ? { type: "unknown" as const }
+    : birthHour !== undefined && birthMinute !== undefined
+      ? { type: "known" as const, hour: birthHour, minute: birthMinute }
+      : undefined;
+  const previewRequest: PreviewSajuChartRequestDto | undefined =
+    name.trim() && gender && birthDate && isValidDate && birthTime
+      ? {
+          birth: {
+            calendarType,
+            isLeapMonth: calendarType === "lunar" && isLeapMonth,
+            date: birthDate,
+            time:
+              birthTime.type === "known"
+                ? {
+                    precision: "exact",
+                    hour: birthTime.hour,
+                    minute: birthTime.minute,
+                  }
+                : { precision: "unknown" },
+            luckCycleGender: gender,
+          },
+        }
+      : undefined;
+
+  function handleChange() {
+    setFormError(undefined);
+    onChange?.();
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    const birthYear = getFormInteger(formData, "birthYear");
-    const birthMonth = getFormInteger(formData, "birthMonth");
-    const birthDay = getFormInteger(formData, "birthDay");
 
     if (!name.trim()) {
       setFormError("이름 또는 별명을 입력해주세요.");
       return;
     }
 
-    if (
-      gender === undefined ||
-      birthYear === undefined ||
-      birthMonth === undefined ||
-      birthDay === undefined
-    ) {
+    if (gender === undefined || birthDate === undefined) {
       setFormError("필수 정보를 모두 확인해주세요.");
       return;
     }
-
-    const birthDate = {
-      year: birthYear,
-      month: birthMonth,
-      day: birthDay,
-    };
-
-    const isValidDate =
-      calendarType === "solar"
-        ? isValidSolarBirthDate(birthDate)
-        : isValidLunarBirthDate(birthDate);
 
     if (!isValidDate) {
       setFormError("실제로 존재하는 생년월일을 선택해주세요.");
       return;
     }
-
-    const birthHour = getFormInteger(formData, "birthHour");
-    const birthMinute = getFormInteger(formData, "birthMinute");
-
-    if (
-      !isUnknownBirthTime &&
-      (birthHour === undefined || birthMinute === undefined)
-    ) {
-      setFormError("출생 시간을 선택하거나 모름에 체크해주세요.");
-      return;
-    }
-
-    const birthTime = isUnknownBirthTime
-      ? { type: "unknown" as const }
-      : birthHour !== undefined && birthMinute !== undefined
-        ? { type: "known" as const, hour: birthHour, minute: birthMinute }
-        : undefined;
 
     if (!birthTime) {
       setFormError("출생 시간을 선택하거나 모름에 체크해주세요.");
@@ -249,7 +257,11 @@ export function SajuProfileForm({
   }
 
   return (
-    <form className="mt-5 space-y-3" onSubmit={handleSubmit}>
+    <form
+      className="mt-5 space-y-3"
+      onChange={handleChange}
+      onSubmit={handleSubmit}
+    >
       {showRelationField ? (
         <FieldGroup title="누구의 사주인가요?">
           <select
@@ -297,7 +309,10 @@ export function SajuProfileForm({
           {name ? (
             <button
               className="absolute right-2 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-muted-foreground"
-              onClick={() => setName("")}
+              onClick={() => {
+                setName("");
+                handleChange();
+              }}
               type="button"
               aria-label="이름 지우기"
             >
@@ -375,8 +390,13 @@ export function SajuProfileForm({
         <div className="grid grid-cols-3 gap-2">
           <select
             aria-label="출생 연도"
+            aria-invalid={birthDate && !isValidDate ? true : undefined}
+            aria-describedby={
+              birthDate && !isValidDate ? dateErrorId : undefined
+            }
             className={selectClassName}
-            defaultValue={initialProfile?.birthDate.year ?? ""}
+            value={birthYear ?? ""}
+            onChange={(event) => setBirthYear(Number(event.target.value))}
             name="birthYear"
             required
           >
@@ -391,8 +411,13 @@ export function SajuProfileForm({
           </select>
           <select
             aria-label="출생 월"
+            aria-invalid={birthDate && !isValidDate ? true : undefined}
+            aria-describedby={
+              birthDate && !isValidDate ? dateErrorId : undefined
+            }
             className={selectClassName}
-            defaultValue={initialProfile?.birthDate.month ?? ""}
+            value={birthMonth ?? ""}
+            onChange={(event) => setBirthMonth(Number(event.target.value))}
             name="birthMonth"
             required
           >
@@ -407,8 +432,13 @@ export function SajuProfileForm({
           </select>
           <select
             aria-label="출생 일"
+            aria-invalid={birthDate && !isValidDate ? true : undefined}
+            aria-describedby={
+              birthDate && !isValidDate ? dateErrorId : undefined
+            }
             className={selectClassName}
-            defaultValue={initialProfile?.birthDate.day ?? ""}
+            value={birthDay ?? ""}
+            onChange={(event) => setBirthDay(Number(event.target.value))}
             name="birthDay"
             required
           >
@@ -424,16 +454,21 @@ export function SajuProfileForm({
         </div>
       </FieldGroup>
 
+      {birthDate && !isValidDate ? (
+        <p id={dateErrorId} role="alert" className="text-xs text-destructive">
+          {calendarType === "solar"
+            ? "실제로 존재하는 오늘 이전의 생년월일을 선택해주세요."
+            : "음력 날짜는 1일부터 30일 사이로 선택해주세요."}
+        </p>
+      ) : null}
+
       <FieldGroup title="출생 시간">
         <div className="grid grid-cols-2 gap-2">
           <select
             aria-label="출생 시"
             className={selectClassName}
-            defaultValue={
-              initialProfile?.birthTime.type === "known"
-                ? initialProfile.birthTime.hour
-                : ""
-            }
+            value={birthHour ?? ""}
+            onChange={(event) => setBirthHour(Number(event.target.value))}
             disabled={isUnknownBirthTime}
             name="birthHour"
             required={!isUnknownBirthTime}
@@ -450,11 +485,8 @@ export function SajuProfileForm({
           <select
             aria-label="출생 분"
             className={selectClassName}
-            defaultValue={
-              initialProfile?.birthTime.type === "known"
-                ? initialProfile.birthTime.minute
-                : ""
-            }
+            value={birthMinute ?? ""}
+            onChange={(event) => setBirthMinute(Number(event.target.value))}
             disabled={isUnknownBirthTime}
             name="birthMinute"
             required={!isUnknownBirthTime}
@@ -486,6 +518,21 @@ export function SajuProfileForm({
         </label>
       </FieldGroup>
 
+      <aside className="rounded-2xl bg-brand-gold-soft/60 px-4 py-3 text-xs leading-5">
+        <p className="font-semibold text-foreground">한국시 보정 · 기본 적용</p>
+        <p className="mt-1 text-muted-foreground">
+          출생 기록의 시각을 그대로 입력해주세요. 보통 30분을 빼서 계산하고,
+          과거 표준시·서머타임 기간에는 보정량을 다르게 적용해요.
+        </p>
+      </aside>
+
+      {previewRequest ? (
+        <SajuChartPreview
+          key={JSON.stringify(previewRequest)}
+          request={previewRequest}
+        />
+      ) : null}
+
       <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
         <div className="grid size-10 shrink-0 place-items-center rounded-full bg-paper text-brand-gold-foreground">
           <LockKeyhole size={19} strokeWidth={1.7} />
@@ -507,7 +554,10 @@ export function SajuProfileForm({
         {isSubmitting ? "저장하고 있어요" : submitLabel}
       </button>
       {formError ? (
-        <p className="text-center text-xs font-semibold text-destructive" role="alert">
+        <p
+          className="text-center text-xs font-semibold text-destructive"
+          role="alert"
+        >
           {formError}
         </p>
       ) : null}

@@ -5,7 +5,7 @@ import type {
   SajuChartSnapshot,
   StemSymbol,
   TenGodCode,
-} from "@/entities/saju_chart";
+} from "../model/saju_chart";
 
 import { ELEMENT_THEMES } from "../config/element_theme";
 import type {
@@ -107,6 +107,20 @@ export function toManseoryeokViewModel(
       ? `${pad(birth.time.hour)}:${pad(birth.time.minute)}`
       : "시간 미상";
   const calendarLabel = birth.calendarType === "solar" ? "양력" : "음력";
+  const correction = birth.timeCorrection;
+  const timePolicyLabel = correction
+    ? "한국시 보정 · 보정 시각의 자정 기준"
+    : snapshot.calculation.policyVersion === "kr-kst-midnight-v1"
+      ? "한국 표준시 · 보정 미적용 · 자정 기준"
+      : "저장된 계산 기준";
+  const timeCorrectionSummary =
+    correction?.correctedTime &&
+    correction.correctedSolarDate &&
+    correction.adjustmentMinutes !== null
+      ? `${correction.adjustmentMinutes === 0 ? "당시 표준시 기준 · 보정 0분" : `한국시 보정 · ${Math.abs(correction.adjustmentMinutes)}분 ${correction.adjustmentMinutes < 0 ? "빼기" : "더하기"}`} → 양력 ${formatDate(correction.correctedSolarDate)} ${pad(correction.correctedTime.hour)}:${pad(correction.correctedTime.minute)}`
+      : correction
+        ? "한국시 보정 기준 · 시간 미상으로 보정 시각을 확정하지 않았어요."
+        : null;
   const dayPillar = snapshot.pillars.day;
   const dayMaster = toSymbolCellViewModel(
     snapshot.dayMaster,
@@ -114,16 +128,17 @@ export function toManseoryeokViewModel(
   );
 
   return {
-    qualityLabel:
-      snapshot.quality === "complete" ? "전체 명식" : "부분 명식",
+    qualityLabel: snapshot.quality === "complete" ? "전체 명식" : "부분 명식",
     birthSummary: `${formatDate(birth.inputDate)} · ${calendarLabel} · ${timeLabel}`,
     normalizedDateSummary: `양력 ${formatDate(birth.solarDate)} · 음력 ${formatDate(birth.lunarDate)}${birth.lunarDate.isLeapMonth ? " 윤달" : ""}`,
+    timeCorrectionSummary,
+    timePolicyLabel,
     pillars: PILLAR_ORDER.map((position) =>
       toPillarColumnViewModel(position, snapshot.pillars[position]),
     ),
     dayMaster,
     elementDistribution: {
-      methodLabel: "원국 8글자 단순 집계",
+      methodLabel: `원국 ${snapshot.elementDistribution.totalSymbols}글자 단순 집계`,
       totalSymbols: snapshot.elementDistribution.totalSymbols,
       items: ELEMENT_ORDER.map((code) => ({
         code,
@@ -135,20 +150,9 @@ export function toManseoryeokViewModel(
     voidBranches: snapshot.voidBranches.map(
       (branch) => `${branch.korean} ${branch.hanja}`,
     ),
-    luckCycle: snapshot.luckCycle
-      ? {
-          directionLabel:
-            snapshot.luckCycle.direction === "forward" ? "순행" : "역행",
-          startLabel: `${snapshot.luckCycle.start.roundedAge}세 시작 · ${snapshot.luckCycle.start.years}년 ${snapshot.luckCycle.start.months}개월 ${snapshot.luckCycle.start.days}일`,
-          items: snapshot.luckCycle.items.map((item) => ({
-            sequence: item.sequence,
-            startAge: item.startAge,
-            ganji: item.ganji.korean,
-            hanja: item.ganji.hanja,
-          })),
-        }
-      : null,
-    warnings: snapshot.warnings.map((warning) => warning.message),
+    warnings: snapshot.warnings
+      .filter((warning) => warning.code !== "luck_cycle_unavailable")
+      .map((warning) => warning.message),
     calculationMeta: `스키마 v${snapshot.schemaVersion} · ${snapshot.calculation.engine} ${snapshot.calculation.engineVersion} · ${snapshot.calculation.policyVersion}`,
   };
 }

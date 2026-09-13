@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 import { ELEMENT_THEMES } from "../config/element_theme";
 import type { ManseoryeokChartViewModel } from "../model/manseoryeok_view_model";
 
@@ -8,14 +10,15 @@ type ElementDistributionProps = {
 export function ElementDistribution({
   distribution,
 }: ElementDistributionProps) {
+  const titleId = useId();
   return (
-    <section aria-labelledby="element-distribution-title">
+    <section aria-labelledby={titleId}>
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold text-primary">오행 구성</p>
           <h3
             className="mt-1 font-display text-lg font-bold text-foreground"
-            id="element-distribution-title"
+            id={titleId}
           >
             목·화·토·금·수
           </h3>

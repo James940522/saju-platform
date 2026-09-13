@@ -1,4 +1,4 @@
-import type { FiveElementCode } from "@/entities/saju_chart";
+import type { FiveElementCode } from "../model/saju_chart";
 
 export type ElementTheme = {
   label: string;

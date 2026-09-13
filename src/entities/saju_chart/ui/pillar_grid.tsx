@@ -20,7 +20,7 @@ export function PillarGrid({ pillars }: PillarGridProps) {
     <div className="overflow-hidden rounded-2xl border border-paper-border bg-surface">
       <table className="w-full table-fixed border-collapse">
         <caption className="sr-only">
-          년주, 월주, 일주, 시주의 천간과 지지, 십성
+          {pillars.map((pillar) => pillar.title).join(", ")}의 천간과 지지, 십성
         </caption>
         <thead className="bg-paper">
           <tr>

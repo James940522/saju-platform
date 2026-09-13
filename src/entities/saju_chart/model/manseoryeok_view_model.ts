@@ -1,4 +1,4 @@
-import type { FiveElementCode } from "@/entities/saju_chart";
+import type { FiveElementCode } from "./saju_chart";
 
 export type PillarPosition = "year" | "month" | "day" | "hour";
 
@@ -27,17 +27,12 @@ export type ElementDistributionItemViewModel = {
   count: number;
 };
 
-export type LuckCycleItemViewModel = {
-  sequence: number;
-  startAge: number;
-  ganji: string;
-  hanja: string;
-};
-
 export type ManseoryeokChartViewModel = {
   qualityLabel: string;
   birthSummary: string;
   normalizedDateSummary: string;
+  timeCorrectionSummary: string | null;
+  timePolicyLabel: string;
   pillars: readonly PillarColumnViewModel[];
   dayMaster: SymbolCellViewModel;
   elementDistribution: {
@@ -46,11 +41,6 @@ export type ManseoryeokChartViewModel = {
     items: readonly ElementDistributionItemViewModel[];
   };
   voidBranches: readonly string[];
-  luckCycle: {
-    directionLabel: string;
-    startLabel: string;
-    items: readonly LuckCycleItemViewModel[];
-  } | null;
   warnings: readonly string[];
   calculationMeta: string;
 };

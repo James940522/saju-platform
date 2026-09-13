@@ -12,6 +12,8 @@ import type {
 
 export async function createSajuProfile(
   request: CreateSajuProfileRequestDto,
+  idempotencyKey?: string,
+  signal?: AbortSignal,
 ) {
   const response = await requestApi<
     CreateSajuProfileResponseDto["data"],
@@ -20,6 +22,8 @@ export async function createSajuProfile(
     method: "POST",
     url: "/v1/saju-profiles",
     data: request,
+    signal,
+    headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
   });
 
   return response.data;
@@ -35,10 +39,7 @@ export async function getSajuProfiles(signal?: AbortSignal) {
   return response.data;
 }
 
-export async function getSajuProfile(
-  profileId: string,
-  signal?: AbortSignal,
-) {
+export async function getSajuProfile(profileId: string, signal?: AbortSignal) {
   const response = await requestApi<GetSajuProfileResponseDto["data"]>({
     method: "GET",
     url: `/v1/saju-profiles/${encodeURIComponent(profileId)}`,

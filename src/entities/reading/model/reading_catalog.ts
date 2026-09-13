@@ -110,7 +110,7 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "coming_soon",
     pricing: { type: "free" },
     resultType: "ranking",
-    highlights: ["참여자별 재물 성향", "재물운 순위", "함께 공유하는 결과 카드"],
+    highlights: ["참여자별 한 문장 재물운", "재물운 순위", "순위를 비교한 근거"],
   },
   {
     id: "yearly-wealth",

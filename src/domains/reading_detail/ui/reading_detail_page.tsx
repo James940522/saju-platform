@@ -1,3 +1,6 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ChevronRight,
@@ -10,6 +13,7 @@ import {
   getReadingAccessLabel,
   getReadingDefinition,
   getReadingSubjectLabel,
+  readingProductQueries,
 } from "@/entities/reading";
 import { routes } from "@/shared/config";
 
@@ -18,7 +22,14 @@ type ReadingDetailPageProps = {
 };
 
 export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
-  const reading = getReadingDefinition(readingCode);
+  const isWealthRanking = readingCode === "wealth-ranking";
+  const productQuery = useQuery({
+    ...readingProductQueries.detail(readingCode),
+    enabled: isWealthRanking,
+    retry: false,
+  });
+  const reading =
+    productQuery.data?.product ?? getReadingDefinition(readingCode);
 
   if (!reading) {
     notFound();
@@ -37,7 +48,9 @@ export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
           <ArrowLeft size={22} strokeWidth={1.7} />
         </Link>
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold text-brand-gold-muted">풀이 소개</p>
+          <p className="text-[11px] font-semibold text-brand-gold-muted">
+            풀이 소개
+          </p>
           <h1 className="mt-1 font-display text-[24px] font-bold leading-none text-foreground">
             {reading.title}
           </h1>
@@ -94,21 +107,48 @@ export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
           strokeWidth={1.6}
         />
         <div>
-          <h2 className="text-sm font-bold text-foreground">필요한 사주 정보</h2>
+          <h2 className="text-sm font-bold text-foreground">
+            필요한 사주 정보
+          </h2>
           <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
-            {subjectLabel}에 맞는 생년월일, 성별, 달력 종류와
-            출생시간을 사용해요.
+            {subjectLabel}에 맞는 생년월일, 성별, 달력 종류와 출생시간을
+            사용해요.
           </p>
         </div>
       </aside>
 
-      <Link
-        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
-        href={routes.readingStart(reading.code)}
-      >
-        풀이 시작하기
-        <ChevronRight size={19} />
-      </Link>
+      {isWealthRanking &&
+      (productQuery.isPending ||
+        productQuery.isError ||
+        reading.availability !== "active") ? (
+        <div className="mt-5 text-center">
+          <button
+            className="flex h-14 w-full items-center justify-center rounded-2xl border border-paper-border bg-paper text-sm font-semibold text-muted-foreground disabled:opacity-60"
+            disabled={!productQuery.isError || productQuery.isFetching}
+            onClick={() => void productQuery.refetch()}
+            type="button"
+          >
+            {productQuery.isError
+              ? "이용 가능 여부 다시 확인"
+              : productQuery.isPending
+                ? "이용 가능 여부 확인 중"
+                : "지금은 풀이를 준비하고 있어요"}
+          </button>
+          {productQuery.isError && (
+            <p className="mt-2 text-xs text-destructive" role="alert">
+              서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.
+            </p>
+          )}
+        </div>
+      ) : (
+        <Link
+          className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
+          href={routes.readingStart(reading.code)}
+        >
+          풀이 시작하기
+          <ChevronRight size={19} />
+        </Link>
+      )}
     </main>
   );
 }

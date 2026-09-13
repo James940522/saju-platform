@@ -60,3 +60,16 @@ export async function signOutAuthenticatedUser() {
     throw error;
   }
 }
+
+// Auth may already be deleted. The installed SDK clears local storage even
+// when its remote sign-out returns an error; always clear our snapshot too.
+export async function clearWithdrawnSession() {
+  updateAuthUserSnapshot(null);
+  try {
+    const supabase = getBrowserSupabaseClient();
+    await supabase.auth.stopAutoRefresh();
+    await supabase.auth.signOut({ scope: "local" });
+  } finally {
+    updateAuthUserSnapshot(null);
+  }
+}

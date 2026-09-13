@@ -99,6 +99,7 @@ export function UpdateSajuProfileForm({
       <SajuProfileForm
         initialProfile={toInitialProfile(profile)}
         isSubmitting={updateProfileMutation.isPending}
+        onChange={() => setRequestError(undefined)}
         onSubmit={handleSubmit}
         submitLabel="변경사항 저장하기"
       />

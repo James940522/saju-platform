@@ -71,8 +71,9 @@ export function SajuProfileEditContent({
   return (
     <>
       <aside className="mt-6 rounded-2xl border border-brand-gold/35 bg-brand-gold-soft/45 px-4 py-3 text-xs leading-5 text-muted-foreground">
-        이름이나 관계만 바꾸면 현재 만세력을 유지해요. 생년월일, 태어난
-        시각, 성별 기준값을 바꾸면 새로운 만세력 계산본을 저장합니다.
+        출생 기록의 시각을 그대로 입력해주세요. 이 화면에서 저장하면 한국시 보정
+        기준으로 만세력을 확인하며, 과거 기준으로 저장한 만세력은 새 계산본으로
+        갱신합니다.
       </aside>
       <UpdateSajuProfileForm
         key={profileQuery.data.profile.id}

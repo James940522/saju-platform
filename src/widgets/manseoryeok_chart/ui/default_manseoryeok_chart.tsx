@@ -7,9 +7,7 @@ import {
   getAuthServerSnapshot,
   subscribeToAuth,
 } from "@/entities/auth";
-import { sajuProfileQueries } from "@/entities/saju_chart";
-
-import { ManseoryeokChart } from "./manseoryeok_chart";
+import { ManseoryeokChart, sajuProfileQueries } from "@/entities/saju_chart";
 
 export function DefaultManseoryeokChart() {
   const userId = useSyncExternalStore<string | null | undefined>(

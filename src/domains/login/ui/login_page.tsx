@@ -118,8 +118,8 @@ export function LoginPage({
       <aside className="mt-4 flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
         <ShieldCheck className="mt-0.5 shrink-0 text-brand-gold-muted" size={20} />
         <p className="text-[11px] leading-5 text-muted-foreground">
-          서비스가 별도 비밀번호를 저장하지 않으며, 로그인 확인 후 필요한
-          최소 사용자 정보만 서버에 생성합니다.
+          서비스가 별도 비밀번호를 저장하지 않으며, 필수 가입 확인을 마친 뒤
+          서비스 회원정보를 생성합니다.
         </p>
       </aside>
     </main>

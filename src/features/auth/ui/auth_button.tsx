@@ -1,83 +1,41 @@
 "use client";
 
-import { LogIn, LogOut } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSyncExternalStore } from "react";
 import {
   getAuthenticatedUserId,
   getAuthServerSnapshot,
-  signOutAuthenticatedUser,
   subscribeToAuth,
 } from "@/entities/auth";
-import { clearDemoReadingPurchases } from "@/entities/reading_purchase";
-import { sajuProfileKeys } from "@/entities/saju_chart";
-import { userKeys, userQueries } from "@/entities/user";
+import { userQueries } from "@/entities/user";
 import { routes } from "@/shared/config";
 
 export function AuthButton() {
-  const [isSigningOut, setIsSigningOut] = useState(false);
-  const queryClient = useQueryClient();
-  const userId = useSyncExternalStore<string | null | undefined>(
+  const userId = useSyncExternalStore(
     subscribeToAuth,
     getAuthenticatedUserId,
     getAuthServerSnapshot,
   );
-  const { data: currentUserData } = useQuery({
-    ...userQueries.current(),
+  const { data } = useQuery({
+    ...userQueries.current(userId),
     enabled: Boolean(userId),
   });
 
-  async function handleSignOut() {
-    setIsSigningOut(true);
-
-    try {
-      await signOutAuthenticatedUser();
-      queryClient.removeQueries({ queryKey: userKeys.all });
-      queryClient.removeQueries({ queryKey: sajuProfileKeys.all });
-      clearDemoReadingPurchases();
-    } catch {
-      // Keep the current session and local data when sign-out fails.
-    } finally {
-      setIsSigningOut(false);
-    }
-  }
-
   if (userId === undefined) {
-    return (
-      <span
-        aria-hidden="true"
-        className="h-10 w-[74px] rounded-full border border-paper-border bg-surface"
-      />
-    );
+    return <span aria-hidden="true" className="ml-3 min-h-11 w-16 shrink-0" />;
   }
 
-  if (userId) {
-    const displayName = currentUserData?.user.displayName;
-
-    return (
-      <button
-        aria-label="현재 계정 로그아웃"
-        className="flex h-10 items-center gap-1.5 rounded-full border border-paper-border bg-surface px-3 text-xs font-semibold text-foreground disabled:opacity-60"
-        disabled={isSigningOut}
-        onClick={() => void handleSignOut()}
-        type="button"
-      >
-        <LogOut size={16} strokeWidth={1.8} />
-        <span className="max-w-24 truncate">
-          {isSigningOut ? "확인 중" : displayName ? `${displayName}님` : "로그아웃"}
-        </span>
-      </button>
-    );
-  }
+  const name = userId ? data?.user.displayName?.trim() || "회원" : "방문자";
 
   return (
     <Link
-      className="flex h-10 items-center gap-1.5 rounded-full border border-paper-border bg-surface px-3 text-xs font-semibold text-foreground"
-      href={routes.login()}
+      href={userId ? routes.account : routes.login()}
+      aria-label={`어서오세요 ${name}님, ${userId ? "계정 관리" : "로그인"}`}
+      className="ml-3 inline-flex min-h-11 shrink-0 flex-col items-end justify-center font-display text-sm font-bold text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
     >
-      <LogIn size={16} strokeWidth={1.8} />
-      로그인
+      <span className="text-[11px] font-normal text-muted-foreground">어서오세요</span>
+      <span className="max-w-24 truncate">{name}님</span>
     </Link>
   );
 }

@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AuthButton } from "@/features/auth";
-import { BRAND_CHARACTER_IMAGES, BRAND_NAME } from "@/shared/config";
+import { BRAND_CHARACTER_IMAGES, BRAND_NAME, routes } from "@/shared/config";
 
 import { HomeProductSections } from "./home_product_sections";
 
@@ -52,6 +53,24 @@ export function HomePage() {
           />
         </div>
       </section>
+
+      <footer className="mx-4 mt-3 border-t border-border py-5 text-sm text-muted-foreground">
+        <nav aria-label="서비스 정책" className="flex flex-wrap gap-x-5 gap-y-1">
+          <Link
+            className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+            href={routes.terms}
+          >
+            이용약관
+          </Link>
+          <Link
+            className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+            href={routes.privacy}
+          >
+            개인정보처리방침
+          </Link>
+        </nav>
+        <p className="mt-1">(주) 재영에프앤비 · 대표 최재영</p>
+      </footer>
     </main>
   );
 }
