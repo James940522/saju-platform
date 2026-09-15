@@ -3,6 +3,11 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getSupabasePublicConfig } from "@/shared/supabase/config";
 
 export async function proxy(request: NextRequest) {
+  const isForcedPreview = process.env.NEXT_PUBLIC_DEMO_FALLBACK !== "false" && (
+    process.env.NEXT_PUBLIC_DEMO_FALLBACK === "always" ||
+    (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_API_BASE_URL?.trim())
+  );
+  if (isForcedPreview) return NextResponse.next({ request });
   const config = getSupabasePublicConfig();
 
   if (!config) {

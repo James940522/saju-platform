@@ -1,4 +1,5 @@
 import { requestApi } from "@/shared/api";
+import { readingCatalog } from "../model/reading_catalog";
 
 import type {
   ReadingContent,
@@ -22,6 +23,15 @@ export type GetReadingProductData = {
 type ReadingProductRequestOptions = {
   signal?: AbortSignal;
 };
+
+function getDemoProducts(): ReadingProductDto[] {
+  return readingCatalog.filter((product) => product.availability !== "hidden")
+    .map((product) => ({
+      ...product,
+      availability: product.code === "wealth-ranking" ? "active" : product.availability,
+      highlights: [...product.highlights],
+    }));
+}
 
 function toReadingProductSummary(
   product: ReadingProductSummaryDto,
@@ -53,7 +63,7 @@ export async function getReadingProducts(
     method: "GET",
     url: "/v1/reading-products",
     signal: options.signal,
-  });
+  }, () => ({ products: getDemoProducts() }));
 
   return {
     products: response.data.products.map(toReadingProductSummary),
@@ -68,6 +78,10 @@ export async function getReadingProduct(
     method: "GET",
     url: `/v1/reading-products/${encodeURIComponent(productCode)}`,
     signal: options.signal,
+  }, () => {
+    const product = getDemoProducts().find((item) => item.code === productCode);
+    if (!product) throw new Error("Unknown preview product");
+    return { product };
   });
 
   return {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { AppShell, QueryProvider } from "@/application";
+import { AppShell, DemoPreviewNotice, QueryProvider } from "@/application";
 import { RegistrationConsentDialog } from "@/features/complete_registration";
 import { AuthSessionCleanup } from "@/features/auth";
 import { BRAND_NAME } from "@/shared/config";
@@ -26,6 +26,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <AppShell>
           <QueryProvider>
             <AuthSessionCleanup />
+            <DemoPreviewNotice />
             {children}
             <RegistrationConsentDialog />
           </QueryProvider>

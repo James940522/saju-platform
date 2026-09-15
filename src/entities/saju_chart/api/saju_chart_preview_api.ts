@@ -1,4 +1,5 @@
 import { ApiClientError, requestApi } from "@/shared/api";
+import { getDemoChartSnapshot } from "../model/demo_saju_profiles";
 
 import type { SajuChartSnapshot } from "../model/saju_chart";
 import type { CreateSajuProfileRequestDto } from "./saju_chart_dto";
@@ -19,7 +20,7 @@ export async function previewSajuChart(
     url: "/v1/saju-charts/preview",
     data: request,
     signal,
-  });
+  }, () => ({ status: "calculated", snapshot: getDemoChartSnapshot() }));
 
   if (
     typeof data !== "object" ||

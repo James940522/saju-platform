@@ -13,3 +13,4 @@ export {
   toWealthRankingResult,
   toPublicWealthRankingResult,
 } from "./lib/to_wealth_ranking_result";
+export { getDemoWealthRanking } from "./model/demo_wealth_ranking";

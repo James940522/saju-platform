@@ -1,4 +1,5 @@
 import { isApiClientError, requestApi } from "@/shared/api";
+import { DEMO_USER_ID } from "@/shared/api";
 
 import type { User } from "../model/user";
 import type {
@@ -10,6 +11,17 @@ import type {
 export type CurrentUserData = {
   user: User;
 };
+
+function getDemoUser(): CurrentUserDataDto {
+  return { user: {
+    id: DEMO_USER_ID,
+    displayName: "김하늘",
+    status: "active",
+    createdAt: "2026-09-15T00:00:00.000Z",
+    updatedAt: "2026-09-15T00:00:00.000Z",
+    withdrawnAt: null,
+  } };
+}
 
 function toUser(user: UserDto): User {
   return {
@@ -28,7 +40,7 @@ export async function getCurrentUser(signal?: AbortSignal): Promise<CurrentUserD
       method: "GET",
       url: "/v1/users/me",
       signal,
-    });
+    }, getDemoUser);
 
     return { user: toUser(response.data.user) };
   } catch (error) {
@@ -73,7 +85,7 @@ export async function completeCurrentUserRegistration(): Promise<CurrentUserData
     method: "PUT",
     url: "/v1/users/me/registration",
     data: request,
-  });
+  }, getDemoUser);
 
   return { user: toUser(response.data.user) };
 }

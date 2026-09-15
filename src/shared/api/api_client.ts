@@ -11,6 +11,7 @@ import {
 } from "./lib/api_client_error";
 import type { ApiResponse } from "./model/api_response";
 import { getBrowserSupabaseClient } from "@/shared/supabase/browser_client";
+import { DEMO_FALLBACK_ENABLED, DEMO_REQUEST_TIMEOUT_MS, withDemoFallback } from "./lib/demo_fallback";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -94,6 +95,10 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
+  // Public preview entry points must not wait on an expired OAuth session.
+  if (config.url === "/v1/reading-products" ||
+    config.url?.startsWith("/v1/reading-products/") ||
+    config.url === "/v1/saju-charts/preview") return config;
   try {
     const supabase = getBrowserSupabaseClient();
     const { data } = await supabase.auth.getSession();
@@ -116,19 +121,31 @@ apiClient.interceptors.response.use(
 
 export async function requestApi<TData, TBody = unknown>(
   config: AxiosRequestConfig<TBody>,
+  demoData?: () => TData,
 ): Promise<ApiResponse<TData>> {
-  const response = await apiClient.request<unknown, AxiosResponse<unknown>, TBody>(
-    config,
+  return withDemoFallback(
+    async () => {
+      const isPreviewRead = DEMO_FALLBACK_ENABLED && demoData &&
+        (config.method?.toUpperCase() === "GET" || !config.method);
+      const response = await apiClient.request<unknown, AxiosResponse<unknown>, TBody>({
+        ...config,
+        timeout: isPreviewRead
+          ? Math.min(config.timeout ?? API_TIMEOUT_MS, DEMO_REQUEST_TIMEOUT_MS)
+          : config.timeout,
+      });
+
+      if (!isApiResponse<TData>(response.data) || response.data.code !== response.status) {
+        throw new ApiClientError({
+          code: response.status,
+          message: "서버 응답 형식이 올바르지 않습니다.",
+          data: { reason: "INVALID_API_RESPONSE" },
+          requestId: getRequestId(response),
+        });
+      }
+
+      return response.data;
+    },
+    demoData ? () => ({ code: 200, message: "화면 미리보기", data: demoData() }) : undefined,
+    () => config.signal?.aborted === true,
   );
-
-  if (!isApiResponse<TData>(response.data) || response.data.code !== response.status) {
-    throw new ApiClientError({
-      code: response.status,
-      message: "서버 응답 형식이 올바르지 않습니다.",
-      data: { reason: "INVALID_API_RESPONSE" },
-      requestId: getRequestId(response),
-    });
-  }
-
-  return response.data;
 }

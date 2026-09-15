@@ -1,4 +1,5 @@
 import { ApiClientError, requestApi } from "@/shared/api";
+import { createDemoReadingJob, getDemoReadingJob, getDemoReadingJobs } from "../model/demo_reading_jobs";
 import {
   toReadingJob,
   toReadingJobs,
@@ -27,7 +28,7 @@ export async function createReadingJob(
     headers: { "Idempotency-Key": requestKey },
     data: { productCode: "wealth-ranking", chartIds },
     signal,
-  });
+  }, () => createDemoReadingJob(chartIds, requestKey));
   return parse(response.data, toReadingJob);
 }
 export async function getReadingJob(jobId: string, signal?: AbortSignal) {
@@ -35,7 +36,7 @@ export async function getReadingJob(jobId: string, signal?: AbortSignal) {
     method: "GET",
     url: `/v1/reading-jobs/${encodeURIComponent(jobId)}`,
     signal,
-  });
+  }, () => getDemoReadingJob(jobId));
   return parse(response.data, toReadingJob);
 }
 export async function getReadingJobs(cursor?: string, signal?: AbortSignal) {
@@ -44,7 +45,7 @@ export async function getReadingJobs(cursor?: string, signal?: AbortSignal) {
     url: "/v1/reading-jobs",
     params: { limit: 20, cursor },
     signal,
-  });
+  }, () => cursor ? { jobs: [], nextCursor: null } : getDemoReadingJobs());
   return parse(response.data, toReadingJobs);
 }
 export async function getReadingResult(jobId: string, signal?: AbortSignal) {
@@ -52,7 +53,7 @@ export async function getReadingResult(jobId: string, signal?: AbortSignal) {
     method: "GET",
     url: `/v1/reading-results/${encodeURIComponent(jobId)}`,
     signal,
-  });
+  }, () => getDemoReadingJob(jobId));
   return parse(response.data, toReadingResult);
 }
 export const readingJobKeys = {

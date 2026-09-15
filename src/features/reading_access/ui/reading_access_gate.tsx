@@ -17,6 +17,7 @@ import {
   sajuProfileQueries,
 } from "@/entities/saju_chart";
 import { routes } from "@/shared/config";
+import { isDemoActive } from "@/shared/api";
 
 type ReadingAccessGateProps = {
   children: ReactNode;
@@ -63,6 +64,7 @@ export function ReadingAccessGate({
   const hasRequiredProfiles =
     Boolean(defaultProfile) && (!requiresPartner || Boolean(partnerProfile));
   const hasRequiredPayment =
+    isDemoActive() ||
     requiredPaymentAmount === undefined ||
     (purchase?.readingCode === readingCode &&
       purchase.amount === requiredPaymentAmount);

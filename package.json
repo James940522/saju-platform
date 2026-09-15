@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:demo-fallback": "node --test test/demo_fallback.test.mjs",
     "test:wealth-ranking": "node --test test/wealth_ranking.test.mjs",
     "test:result-archive": "node --test test/result_archive.test.mjs",
     "test:reading-jobs": "node --test test/reading_jobs.test.mjs test/reading_ui.test.mjs"

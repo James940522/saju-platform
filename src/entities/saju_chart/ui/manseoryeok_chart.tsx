@@ -18,6 +18,7 @@ export function ManseoryeokChart({
 }: ManseoryeokChartProps) {
   const dayMasterTitleId = useId();
   const isPreview = variant === "preview";
+  const isDemo = snapshot.calculation.policyVersion === "demo-preview-v1";
   const chart = toManseoryeokViewModel(snapshot);
   const dayMasterTheme = ELEMENT_THEMES[chart.dayMaster.element];
 
@@ -134,7 +135,9 @@ export function ManseoryeokChart({
       </div>
 
       <footer className="border-t border-paper-border px-4 py-3 text-[9px] leading-4 text-muted-foreground">
-        {isPreview
+        {isDemo
+          ? "화면 시연용 예시 명식이에요. 입력한 생년월일로 계산한 결과가 아니에요."
+          : isPreview
           ? `${chart.timePolicyLabel}이에요. 입력 중 계산 결과는 자동 저장되지 않아요.`
           : `${chart.timePolicyLabel} · ${chart.calculationMeta}`}
       </footer>

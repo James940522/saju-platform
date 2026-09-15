@@ -1,7 +1,8 @@
 "use client";
 
 import { Share2 } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
+import { isDemoActive, subscribeToDemo } from "@/shared/api";
 import { routes } from "@/shared/config";
 
 type ShareReadingResultButtonProps = {
@@ -11,6 +12,7 @@ type ShareReadingResultButtonProps = {
 export function ShareReadingResultButton({
   jobId,
 }: ShareReadingResultButtonProps) {
+  const isPreview = useSyncExternalStore(subscribeToDemo, isDemoActive, () => false);
   const linkInputId = useId();
   const isSharingRef = useRef(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -18,7 +20,7 @@ export function ShareReadingResultButton({
   const [manualCopyUrl, setManualCopyUrl] = useState<string | null>(null);
 
   async function handleShare() {
-    if (isSharingRef.current) return;
+    if (isSharingRef.current || isDemoActive()) return;
     isSharingRef.current = true;
     setIsSharing(true);
     setIsCopied(false);
@@ -59,7 +61,7 @@ export function ShareReadingResultButton({
     <div>
       <button
         className="flex h-13 w-full items-center justify-center gap-2 rounded-xl border border-brand-gold bg-primary text-sm font-semibold text-brand-gold-on-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
-        disabled={isSharing}
+        disabled={isSharing || isPreview}
         onClick={() => void handleShare()}
         type="button"
       >
@@ -71,7 +73,9 @@ export function ShareReadingResultButton({
         className="mt-2 text-center text-xs leading-5 text-muted-foreground"
         role="status"
       >
-        {isCopied ? "링크를 복사했어요." : "로그인 없이 결과를 볼 수 있어요."}
+        {isPreview
+          ? "예시 결과는 현재 탭에서만 볼 수 있어요."
+          : isCopied ? "링크를 복사했어요." : "로그인 없이 결과를 볼 수 있어요."}
       </p>
       {manualCopyUrl && (
         <div className="mt-3 rounded-xl border border-paper-border bg-paper p-3">

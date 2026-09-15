@@ -1,4 +1,5 @@
 import { requestApi } from "@/shared/api";
+import { createDemoSajuProfile, deleteDemoSajuProfile, getDemoSajuProfile, getDemoSajuProfiles, updateDemoSajuProfile } from "../model/demo_saju_profiles";
 
 import type {
   CreateSajuProfileRequestDto,
@@ -24,7 +25,7 @@ export async function createSajuProfile(
     data: request,
     signal,
     headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
-  });
+  }, () => createDemoSajuProfile(request, idempotencyKey));
 
   return response.data;
 }
@@ -34,7 +35,7 @@ export async function getSajuProfiles(signal?: AbortSignal) {
     method: "GET",
     url: "/v1/saju-profiles",
     signal,
-  });
+  }, getDemoSajuProfiles);
 
   return response.data;
 }
@@ -44,7 +45,7 @@ export async function getSajuProfile(profileId: string, signal?: AbortSignal) {
     method: "GET",
     url: `/v1/saju-profiles/${encodeURIComponent(profileId)}`,
     signal,
-  });
+  }, () => getDemoSajuProfile(profileId));
 
   return response.data;
 }
@@ -60,7 +61,7 @@ export async function updateSajuProfile(
     method: "PATCH",
     url: `/v1/saju-profiles/${encodeURIComponent(profileId)}`,
     data: request,
-  });
+  }, () => updateDemoSajuProfile(profileId, request));
 
   return response.data;
 }
@@ -69,7 +70,7 @@ export async function deleteSajuProfile(profileId: string) {
   const response = await requestApi<DeleteSajuProfileResponseDto["data"]>({
     method: "DELETE",
     url: `/v1/saju-profiles/${encodeURIComponent(profileId)}`,
-  });
+  }, () => deleteDemoSajuProfile(profileId));
 
   return response.data;
 }

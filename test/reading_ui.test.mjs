@@ -45,7 +45,10 @@ const { WealthRankingResult } = load(
   {
     "@/features/share_reading_result": load(
       "features/share_reading_result/ui/share_reading_result_button.tsx",
-      { "@/shared/config": load("shared/config/routes.ts") },
+      {
+        "@/shared/config": load("shared/config/routes.ts"),
+        "@/shared/api": { isDemoActive: () => false, subscribeToDemo: () => () => {} },
+      },
     ),
   },
 );

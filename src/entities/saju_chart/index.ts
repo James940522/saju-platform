@@ -65,3 +65,4 @@ export type {
   VoidBranch,
   YinYangCode,
 } from "./model/saju_chart";
+export { getDemoSajuProfiles } from "./model/demo_saju_profiles";

@@ -14,6 +14,7 @@ import { userQueries, type AccountWithdrawalResult } from "@/entities/user";
 import { AccountWithdrawal } from "@/features/account_withdrawal";
 import { AuthGate, SignOutButton } from "@/features/auth";
 import { routes } from "@/shared/config";
+import { DEMO_USER_ID } from "@/shared/api";
 
 export function AccountPage() {
   const [result, setResult] = useState<AccountWithdrawalResult>();
@@ -92,7 +93,7 @@ function AccountInformation() {
         <p className="mt-1 text-xs text-muted-foreground">
           {isError
             ? "회원정보를 불러오지 못했어요. 탈퇴 요청은 아래에서 할 수 있어요."
-            : "카카오로 로그인 중"}
+            : userId === DEMO_USER_ID ? "예시 계정으로 둘러보는 중" : "카카오로 로그인 중"}
         </p>
       </div>
     </section>

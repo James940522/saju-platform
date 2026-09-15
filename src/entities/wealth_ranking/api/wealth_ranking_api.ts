@@ -1,5 +1,6 @@
 import { ApiClientError, requestApi } from "@/shared/api";
 import { toWealthRankingResult } from "../lib/to_wealth_ranking_result";
+import { getDemoWealthRanking } from "../model/demo_wealth_ranking";
 
 export async function createWealthRanking(
   chartIds: readonly string[],
@@ -12,7 +13,7 @@ export async function createWealthRanking(
     // Backend allows up to 10 minutes for AI; reserve 1 minute for verification and transport.
     timeout: 11 * 60_000,
     signal,
-  });
+  }, () => getDemoWealthRanking(chartIds));
   try {
     return toWealthRankingResult(response.data, chartIds);
   } catch {

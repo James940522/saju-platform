@@ -1,8 +1,10 @@
 "use client";
 
 import { LogIn } from "lucide-react";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { getBrowserSupabaseClient } from "@/shared/supabase/browser_client";
+import { useRouter } from "next/navigation";
+import { isDemoActive, subscribeToDemo } from "@/shared/api";
 
 type SocialLoginButtonsProps = {
   completionHref: string;
@@ -13,10 +15,16 @@ export function SocialLoginButtons({
   completionHref,
   initialError,
 }: SocialLoginButtonsProps) {
+  const router = useRouter();
+  const isPreview = useSyncExternalStore(subscribeToDemo, isDemoActive, () => false);
   const [isPending, setIsPending] = useState(false);
   const [loginError, setLoginError] = useState(initialError);
 
   async function handleSignIn() {
+    if (isDemoActive()) {
+      router.push(completionHref);
+      return;
+    }
     setIsPending(true);
     setLoginError(undefined);
 
@@ -53,7 +61,7 @@ export function SocialLoginButtons({
         <span className="font-black" aria-hidden="true">
           K
         </span>
-        {isPending ? "카카오로 이동 중..." : "카카오로 계속하기"}
+        {isPreview ? "예시 데이터로 계속 둘러보기" : isPending ? "카카오로 이동 중..." : "카카오로 계속하기"}
       </button>
 
       {loginError ? (
