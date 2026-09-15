@@ -6,4 +6,10 @@ export {
 export type {
   WealthRankingEntry,
   WealthRankingResult,
+  PublicWealthRankingResult,
 } from "./model/wealth_ranking";
+
+export {
+  toWealthRankingResult,
+  toPublicWealthRankingResult,
+} from "./lib/to_wealth_ranking_result";

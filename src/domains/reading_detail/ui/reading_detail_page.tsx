@@ -16,6 +16,7 @@ import {
   readingProductQueries,
 } from "@/entities/reading";
 import { routes } from "@/shared/config";
+import { ReadingStartGate } from "@/widgets/reading_jobs";
 
 type ReadingDetailPageProps = {
   readingCode: string;
@@ -36,6 +37,40 @@ export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
   }
 
   const subjectLabel = getReadingSubjectLabel(reading.subjectRequirement);
+
+  const startAction =
+    isWealthRanking &&
+    (productQuery.isPending ||
+      productQuery.isError ||
+      reading.availability !== "active") ? (
+      <div className="mt-5 text-center">
+        <button
+          className="flex h-14 w-full items-center justify-center rounded-2xl border border-paper-border bg-paper text-sm font-semibold text-muted-foreground disabled:opacity-60"
+          disabled={!productQuery.isError || productQuery.isFetching}
+          onClick={() => void productQuery.refetch()}
+          type="button"
+        >
+          {productQuery.isError
+            ? "이용 가능 여부 다시 확인"
+            : productQuery.isPending
+              ? "이용 가능 여부 확인 중"
+              : "지금은 풀이를 준비하고 있어요"}
+        </button>
+        {productQuery.isError && (
+          <p className="mt-2 text-xs text-destructive" role="alert">
+            서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.
+          </p>
+        )}
+      </div>
+    ) : (
+      <Link
+        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
+        href={routes.readingStart(reading.code)}
+      >
+        풀이 시작하기
+        <ChevronRight size={19} />
+      </Link>
+    );
 
   return (
     <main className="min-h-dvh px-4 pb-[calc(24px+env(safe-area-inset-bottom))] pt-[calc(16px+env(safe-area-inset-top))]">
@@ -117,37 +152,10 @@ export function ReadingDetailPage({ readingCode }: ReadingDetailPageProps) {
         </div>
       </aside>
 
-      {isWealthRanking &&
-      (productQuery.isPending ||
-        productQuery.isError ||
-        reading.availability !== "active") ? (
-        <div className="mt-5 text-center">
-          <button
-            className="flex h-14 w-full items-center justify-center rounded-2xl border border-paper-border bg-paper text-sm font-semibold text-muted-foreground disabled:opacity-60"
-            disabled={!productQuery.isError || productQuery.isFetching}
-            onClick={() => void productQuery.refetch()}
-            type="button"
-          >
-            {productQuery.isError
-              ? "이용 가능 여부 다시 확인"
-              : productQuery.isPending
-                ? "이용 가능 여부 확인 중"
-                : "지금은 풀이를 준비하고 있어요"}
-          </button>
-          {productQuery.isError && (
-            <p className="mt-2 text-xs text-destructive" role="alert">
-              서버에 연결하지 못했어요. 잠시 후 다시 시도해주세요.
-            </p>
-          )}
-        </div>
+      {isWealthRanking ? (
+        <ReadingStartGate>{startAction}</ReadingStartGate>
       ) : (
-        <Link
-          className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-brand-gold bg-primary font-display text-[18px] font-bold text-brand-gold-on-dark"
-          href={routes.readingStart(reading.code)}
-        >
-          풀이 시작하기
-          <ChevronRight size={19} />
-        </Link>
+        startAction
       )}
     </main>
   );

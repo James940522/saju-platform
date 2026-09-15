@@ -27,7 +27,7 @@ execFileSync(
   ],
   { cwd: new URL("..", import.meta.url), stdio: "pipe" },
 );
-const { toWealthRankingResult } = require(
+const { toWealthRankingResult, toPublicWealthRankingResult } = require(
   join(output, "lib/to_wealth_ranking_result.js"),
 );
 
@@ -45,6 +45,7 @@ function fixture(ids = [...chartIds].reverse()) {
       warnings: [],
     })),
     rationale: "참여자들의 사주를 비교한 근거예요.",
+    comparisonTitle: "기회를 넓히는 감각과 돈을 지키는 습관",
     notice: "오락용 사주 풀이예요.",
   };
 }
@@ -113,3 +114,47 @@ test("rejects invalid group sizes and duplicate request IDs", () => {
   assert.throws(() => toWealthRankingResult(fixture(ids), ids));
   assert.throws(() => toWealthRankingResult(fixture(), ["chart-a", "chart-a"]));
 });
+
+test("public ranking contains only ordered names and fortune text", () => {
+  const source = fixture();
+  const expected = {
+    ranking: source.ranking.map(({ rank, displayName, fortune }) => ({
+      rank,
+      displayName,
+      fortune,
+    })),
+    rationale: source.rationale,
+    comparisonTitle: source.comparisonTitle,
+    notice: source.notice,
+  };
+  assert.deepEqual(toPublicWealthRankingResult(expected), expected);
+  // Ignore accidental legacy metadata at the presentation boundary as well.
+  assert.deepEqual(toPublicWealthRankingResult(source), expected);
+});
+for (const [label, change] of [
+  ["wrong order", (value) => value.ranking.reverse()],
+  ["too few people", (value) => value.ranking.pop()],
+  ["missing name", (value) => delete value.ranking[0].displayName],
+  ["empty fortune", (value) => (value.ranking[0].fortune = "")],
+  ["long rationale", (value) => (value.rationale = "가".repeat(3601))],
+])
+  test(`rejects invalid public ranking: ${label}`, () => {
+    const value = fixture();
+    change(value);
+    assert.throws(() => toPublicWealthRankingResult(value));
+  });
+
+test("old results remain readable with a neutral title and long named prose is preserved", () => {
+  const value = fixture();
+  delete value.comparisonTitle;
+  const result = toPublicWealthRankingResult(value);
+  assert.equal(result.comparisonTitle, "함께 살펴보는 재물의 흐름");
+  value.rationale = "이름을 포함한 비교 풀이예요. ".repeat(50);
+  assert.equal(toPublicWealthRankingResult(value).rationale, value.rationale);
+});
+for (const comparisonTitle of [null, "", "가".repeat(61)])
+  test(`rejects malformed comparison title ${comparisonTitle}`, () => {
+    assert.throws(() =>
+      toPublicWealthRankingResult({ ...fixture(), comparisonTitle }),
+    );
+  });

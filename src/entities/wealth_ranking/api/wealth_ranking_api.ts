@@ -9,8 +9,8 @@ export async function createWealthRanking(
     method: "POST",
     url: "/v1/readings/wealth-ranking",
     data: { chartIds },
-    // Backend supports up to 60 seconds for generation; the shared 10s timeout is too short.
-    timeout: 70_000,
+    // Backend allows up to 10 minutes for AI; reserve 1 minute for verification and transport.
+    timeout: 11 * 60_000,
     signal,
   });
   try {

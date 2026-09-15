@@ -1,23 +1,17 @@
-import {
-  ArrowLeft,
-  Crown,
-  Medal,
-  RotateCcw,
-  Sparkles,
-  Trophy,
-} from "lucide-react";
-import type { WealthRankingResult as RankingResult } from "@/entities/wealth_ranking";
+import { ArrowLeft, Crown, Medal, Sparkles, Trophy } from "lucide-react";
+import type { PublicWealthRankingResult as RankingResult } from "@/entities/wealth_ranking";
+import { ShareReadingResultButton } from "@/features/share_reading_result";
 
 type WealthRankingResultProps = {
+  jobId: string;
   result: RankingResult;
   onEdit: () => void;
-  onRestart: () => void;
 };
 
 export function WealthRankingResult({
+  jobId,
   result,
   onEdit,
-  onRestart,
 }: WealthRankingResultProps) {
   const winner = result.ranking[0];
   if (!winner) return null;
@@ -64,7 +58,7 @@ export function WealthRankingResult({
           {result.ranking.map((participant) => (
             <li
               className={`flex items-start gap-3 rounded-2xl border px-4 py-4 ${participant.rank === 1 ? "border-brand-gold bg-brand-gold-soft/25" : "border-border bg-surface"}`}
-              key={participant.chartId}
+              key={participant.rank}
             >
               <span
                 className={`grid size-10 shrink-0 place-items-center rounded-full ${participant.rank === 1 ? "bg-primary text-brand-gold-on-dark" : "bg-paper text-brand-gold-foreground"}`}
@@ -87,32 +81,17 @@ export function WealthRankingResult({
                 <p className="mt-1.5 break-words text-xs leading-6 text-muted-foreground">
                   {participant.fortune}
                 </p>
-                {(participant.isPartial ||
-                  participant.calculationNotes.length > 0) && (
-                  <div className="mt-3 border-t border-paper-border pt-2 text-[11px] leading-5 text-muted-foreground">
-                    {participant.isPartial && (
-                      <p>
-                        출생시간 등 일부 정보가 없어 제한된 정보로 풀이했어요.
-                      </p>
-                    )}
-                    {participant.calculationNotes.map((note, index) => (
-                      <p className="break-words" key={index}>
-                        {note}
-                      </p>
-                    ))}
-                  </div>
-                )}
               </div>
             </li>
           ))}
         </ol>
       </section>
-      <section className="mt-6 rounded-2xl border border-border bg-surface px-4 py-5">
+      <section className="mt-6 rounded-[24px] border border-paper-border bg-paper px-5 py-5">
         <p className="text-[11px] font-semibold text-brand-gold-muted">
-          랭킹 산출 근거
+          재물운 비교 풀이
         </p>
-        <h2 className="mt-1 font-display text-[20px] font-bold text-foreground">
-          이렇게 비교했어요
+        <h2 className="mt-1 break-words font-display text-[20px] font-bold leading-snug text-foreground">
+          {result.comparisonTitle}
         </h2>
         <p className="mt-3 break-words text-xs leading-6 text-muted-foreground">
           {result.rationale}
@@ -121,7 +100,8 @@ export function WealthRankingResult({
       <aside className="mt-4 rounded-2xl border border-paper-border bg-paper px-4 py-3 text-[11px] leading-5 text-muted-foreground">
         {result.notice}
       </aside>
-      <div className="mt-5 grid grid-cols-2 gap-2">
+      <div className="mt-5 grid gap-2">
+        <ShareReadingResultButton jobId={jobId} />
         <button
           className="flex h-13 items-center justify-center gap-2 rounded-xl border border-paper-border bg-surface text-sm font-semibold text-foreground"
           onClick={onEdit}
@@ -129,14 +109,6 @@ export function WealthRankingResult({
         >
           <ArrowLeft size={17} />
           참여자 변경
-        </button>
-        <button
-          className="flex h-13 items-center justify-center gap-2 rounded-xl border border-brand-gold bg-primary text-sm font-bold text-brand-gold-on-dark"
-          onClick={onRestart}
-          type="button"
-        >
-          <RotateCcw size={17} />
-          다시 해보기
         </button>
       </div>
     </div>

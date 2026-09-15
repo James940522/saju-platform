@@ -19,7 +19,7 @@ const accountItems = [
     icon: UserRound,
     href: routes.sajuProfiles,
   },
-  { title: "저장한 풀이", description: "구매하거나 저장한 해석", icon: ScrollText },
+  { title: "결과 보관함", description: "상품별로 모아 보는 풀이 결과", icon: ScrollText, href: routes.resultArchive },
   { title: "결제 내역", description: "구매 기록과 영수증", icon: CreditCard },
   { title: "계정 관리", description: "로그인 정보와 회원 탈퇴", icon: Settings, href: routes.account },
 ];

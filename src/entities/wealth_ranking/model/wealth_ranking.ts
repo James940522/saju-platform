@@ -13,5 +13,13 @@ export type WealthRankingEntry = {
 export type WealthRankingResult = {
   ranking: WealthRankingEntry[];
   rationale: string;
+  comparisonTitle: string;
+  notice: string;
+};
+
+export type PublicWealthRankingResult = {
+  ranking: Pick<WealthRankingEntry, "rank" | "displayName" | "fortune">[];
+  rationale: string;
+  comparisonTitle: string;
   notice: string;
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { BookOpenText, Home, Sparkles, UserRound } from "lucide-react";
+import { Archive, BookOpenText, Home, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { routes } from "@/shared/config";
@@ -16,7 +16,7 @@ const navigationItems: NavigationItem[] = [
   { label: "홈", href: routes.home, icon: Home },
   { label: "풀이", href: routes.readings, icon: BookOpenText },
   { label: "운세", href: routes.fortune, icon: Sparkles },
-  { label: "내 만세력", href: routes.mySaju, icon: UserRound },
+  { label: "결과 보관함", href: routes.resultArchive, icon: Archive },
 ];
 
 function isActivePath(pathname: string, href: string) {

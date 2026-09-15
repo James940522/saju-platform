@@ -12,11 +12,12 @@ import {
 } from "@/entities/saju_chart";
 import type { SajuProfileDraft } from "@/entities/saju_profile";
 import {
-  createWealthRanking,
   MAX_WEALTH_PARTICIPANTS,
   MIN_WEALTH_PARTICIPANTS,
-  type WealthRankingResult,
 } from "@/entities/wealth_ranking";
+import { useRouter } from "next/navigation";
+import { createReadingJob, readingJobKeys } from "@/entities/reading_job";
+import { routes } from "@/shared/config";
 import { isApiClientError } from "@/shared/api";
 
 type Participant = {
@@ -58,12 +59,17 @@ function readingErrorMessage(error: unknown): string {
   if (error.code === 503)
     return "지금은 풀이를 생성하기 어려워요. 잠시 후 다시 시도해주세요.";
   if (error.code === 504 || error.data?.reason === "REQUEST_TIMEOUT")
-    return "풀이 생성 시간이 길어지고 있어요. 잠시 후 다시 시도해주세요.";
+    return "요청 접수를 확인하지 못했어요. 내 풀이를 먼저 확인해주세요. 같은 참여자로 다시 누르면 기존 요청을 확인해요.";
   return error.message;
 }
 
 export function useWealthRanking(userId: string) {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const readingSubmissionRef = useRef<{
+    signature: string;
+    key: string;
+  } | null>(null);
   const profilesQuery = useQuery({
     queryKey: [...sajuProfileKeys.list(), userId],
     queryFn: ({ signal }) => getSajuProfiles(signal),
@@ -71,7 +77,6 @@ export function useWealthRanking(userId: string) {
     retry: false,
   });
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [result, setResult] = useState<WealthRankingResult | null>(null);
   const [isAddingParticipant, setIsAddingParticipant] = useState(false);
   const [formSequence, setFormSequence] = useState(0);
   const [pending, setPending] = useState<"saving" | "generating" | null>(null);
@@ -81,7 +86,7 @@ export function useWealthRanking(userId: string) {
   const submissionRef = useRef<{ signature: string; key: string } | null>(null);
 
   // Abort browser work on navigation/logout. The backend may still finish a
-  // request already accepted; don't send another automatically or retain its result.
+  // request already accepted. Its state/result remains available in the job list.
   useEffect(() => {
     const unsubscribe = subscribeToAuth(() => {
       if (getAuthenticatedUserId() !== userId) controllerRef.current?.abort();
@@ -117,7 +122,6 @@ export function useWealthRanking(userId: string) {
     );
     setIsAddingParticipant(false);
     setReadingError(undefined);
-    setResult(null);
   }
 
   async function addParticipant(draft: SajuProfileDraft) {
@@ -167,7 +171,6 @@ export function useWealthRanking(userId: string) {
       setFormSequence((value) => value + 1);
       setIsAddingParticipant(false);
       setReadingError(undefined);
-      setResult(null);
       queryClient.setQueryData(sajuProfileKeys.detail(data.profile.id), data);
       void queryClient.invalidateQueries({ queryKey: sajuProfileKeys.all });
     } catch (error) {
@@ -189,7 +192,6 @@ export function useWealthRanking(userId: string) {
     setParticipants((current) =>
       current.filter((participant) => participant.profileId !== profileId),
     );
-    setResult(null);
     setReadingError(undefined);
   }
 
@@ -200,18 +202,64 @@ export function useWealthRanking(userId: string) {
     controllerRef.current = controller;
     setPending("generating");
     setReadingError(undefined);
-    setResult(null);
     try {
-      const result = await createWealthRanking(
-        participants.map(({ chartId }) => chartId),
+      const chartIds = participants.map(({ chartId }) => chartId);
+      const signature = JSON.stringify(chartIds);
+      const storageKey = `reading-submission:${userId}`;
+      // Retain the same key after an uncertain POST, including a page reload.
+      if (readingSubmissionRef.current?.signature !== signature) {
+        let saved: unknown;
+        try {
+          saved = JSON.parse(sessionStorage.getItem(storageKey) ?? "null");
+        } catch {
+          saved = null;
+        }
+        if (
+          saved &&
+          typeof saved === "object" &&
+          "signature" in saved &&
+          saved.signature === signature &&
+          "key" in saved &&
+          typeof saved.key === "string"
+        ) {
+          readingSubmissionRef.current = { signature, key: saved.key };
+        } else
+          readingSubmissionRef.current = {
+            signature,
+            key: crypto.randomUUID(),
+          };
+      }
+      try {
+        sessionStorage.setItem(
+          storageKey,
+          JSON.stringify(readingSubmissionRef.current),
+        );
+      } catch {
+        /* Private browsing can disable storage. */
+      }
+      const job = await createReadingJob(
+        chartIds,
+        readingSubmissionRef.current.key,
         controller.signal,
       );
       if (controller.signal.aborted || !isCurrentSession()) return;
-      setResult(result);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {
+        /* Optional replay storage. */
+      }
+      readingSubmissionRef.current = null;
+      queryClient.setQueryData(readingJobKeys.detail(userId, job.id), job);
+      void queryClient.invalidateQueries({
+        queryKey: ["reading-jobs", userId],
+      });
+      router.push(routes.readingJob(job.id));
     } catch (error) {
       if (!controller.signal.aborted && isCurrentSession()) {
         setReadingError(readingErrorMessage(error));
+        void queryClient.invalidateQueries({
+          queryKey: ["reading-jobs", userId],
+        });
         if (isApiClientError(error) && error.code === 404)
           void profilesQuery.refetch();
       }
@@ -224,7 +272,6 @@ export function useWealthRanking(userId: string) {
   function restart() {
     if (controllerRef.current) return;
     setParticipants([]);
-    setResult(null);
     setIsAddingParticipant(false);
     setReadingError(undefined);
     setSaveError(undefined);
@@ -237,8 +284,6 @@ export function useWealthRanking(userId: string) {
     participants,
     availableProfiles,
     profilesQuery,
-    result,
-    setResult,
     isAddingParticipant,
     setIsAddingParticipant,
     formSequence,

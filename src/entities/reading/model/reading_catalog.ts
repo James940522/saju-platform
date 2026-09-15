@@ -38,7 +38,11 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
-    highlights: ["성격과 감정 궁합", "대화와 갈등 방식", "오래 이어지는 관계의 조건"],
+    highlights: [
+      "성격과 감정 궁합",
+      "대화와 갈등 방식",
+      "오래 이어지는 관계의 조건",
+    ],
   },
   {
     id: "past-life-relationship",
@@ -50,7 +54,11 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "active",
     pricing: { type: "paid", amount: 990, currency: "KRW" },
     resultType: "past_life_relationship",
-    highlights: ["두 사람의 인연 유형", "이번 생에서 만난 이유", "조심해야 할 관계 패턴"],
+    highlights: [
+      "두 사람의 인연 유형",
+      "이번 생에서 만난 이유",
+      "조심해야 할 관계 패턴",
+    ],
   },
   {
     id: "reunion-fortune",
@@ -62,7 +70,11 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
-    highlights: ["현재 관계의 흐름", "다시 연락하기 좋은 시기", "반복하지 않아야 할 문제"],
+    highlights: [
+      "현재 관계의 흐름",
+      "다시 연락하기 좋은 시기",
+      "반복하지 않아야 할 문제",
+    ],
   },
   {
     id: "daily-fortune",
@@ -110,7 +122,11 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "coming_soon",
     pricing: { type: "free" },
     resultType: "ranking",
-    highlights: ["참여자별 한 문장 재물운", "재물운 순위", "순위를 비교한 근거"],
+    highlights: [
+      "참여자별 한 문장 재물운",
+      "재물운 순위",
+      "서로 다른 재물 성향 비교",
+    ],
   },
   {
     id: "yearly-wealth",
@@ -158,7 +174,11 @@ export const readingCatalog: readonly ReadingContent[] = [
     availability: "hidden",
     pricing: { type: "pending" },
     resultType: "standard",
-    highlights: ["질문에 대한 핵심 답변", "선택할 때 볼 기준", "지금 실천할 조언"],
+    highlights: [
+      "질문에 대한 핵심 답변",
+      "선택할 때 볼 기준",
+      "지금 실천할 조언",
+    ],
   },
 ] as const;
 
@@ -209,9 +229,7 @@ export function getActiveReadingPrice(
   return reading.pricing.amount;
 }
 
-export function getReadingSubjectLabel(
-  requirement: ReadingSubjectRequirement,
-) {
+export function getReadingSubjectLabel(requirement: ReadingSubjectRequirement) {
   switch (requirement.type) {
     case "single":
       return "1인 풀이";

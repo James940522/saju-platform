@@ -51,7 +51,9 @@ function createSajuProfileRoute(options: SajuProfileRouteOptions = {}) {
 export const routes = {
   home: "/",
   readings: "/readings",
+  readingJob: (jobId: string) => `/readings/jobs/${encodeURIComponent(jobId)}`,
   fortune: "/fortune",
+  resultArchive: "/results",
   mySaju: "/my-saju",
   account: "/account",
   terms: "/terms",
@@ -64,8 +66,7 @@ export const routes = {
   login: createLoginRoute,
   reading: (readingCode: string) => `/readings/${readingCode}`,
   readingStart: (readingCode: string) => `/readings/${readingCode}/start`,
-  readingCheckout: (readingCode: string) =>
-    `/readings/${readingCode}/checkout`,
+  readingCheckout: (readingCode: string) => `/readings/${readingCode}/checkout`,
   profileNew: createSajuProfileRoute,
   result: (resultId: string) => `/results/${resultId}`,
 } as const;
